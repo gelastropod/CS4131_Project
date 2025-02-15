@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">CS4131_Project</string>
+    <string name="onboarding1_1">Welcome to\nGraphium!</string>
+    <string name="onboarding1_2">Your all-in-one math workspace</string>
+    <string name="onboarding1_3">Create · Graph · Learn</string>
+    <string name="onboarding2_1">Key Features</string>
+    <string name="onboarding2_2_1">Create Notes</string>
+    <string name="onboarding2_2_2">: Take structured math notes with formulas, equations, and diagrams.\n</string>
+    <string name="onboarding2_2_3">2D &amp; 3D Graphing</string>
+    <string name="onboarding2_2_4">: Visualize equations dynamically with our interactive graphing tool.</string>
+    <string name="onboarding2_2_5">Join Classes</string>
+    <string name="onboarding2_2_6">: Connect with teachers, access shared materials, and collaborate with classmates.</string>
+    <string name="homePageTitle">What are you using this app for?</string>
+    <string name="homePage1">Personal</string>
+    <string name="homePage2">Student</string>
+    <string name="homePage3">Teacher</string>
+    <string name="signInPageTitle">Sign In</string>
+    <string name="signInPage1">Username...</string>
+    <string name="signInPage2">Password...</string>
+    <string name="signInPage3">Sign in</string>
+    <string name="signInPage4_1">New user?\ </string>
+    <string name="signInPage4_2">Create account</string>
+    <string name="signUpPageTitle">Create Account</string>
+    <string name="signUpPage1">Username...</string>
+    <string name="signUpPage2">Password...</string>
+    <string name="signUpPage3">Create account</string>
+    <string name="signUpPage4_1">Already have an account?\ </string>
+    <string name="signUpPage4_2">Sign in</string>
+    <string name="studentPromptPageTitle">Join Class</string>
+    <string name="studentPromptPage1">Would you like to join a class?</string>
 </resources>
