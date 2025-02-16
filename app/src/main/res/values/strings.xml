@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CS4131_Project</string>
+    <string name="app_name">Graphium</string>
     <string name="onboarding1_1">Welcome to\nGraphium!</string>
     <string name="onboarding1_2">Your all-in-one math workspace</string>
     <string name="onboarding1_3">Create · Graph · Learn</string>
