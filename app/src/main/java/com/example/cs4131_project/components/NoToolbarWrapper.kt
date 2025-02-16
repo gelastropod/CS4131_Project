@@ -22,33 +22,28 @@ import androidx.navigation.NavController
 
 class NoToolbarWrapper {
     companion object {
-        @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun NoToolbarWrapper(navController: NavController, title: String, content: @Composable (paddingValues: PaddingValues) -> Unit) {
-            Scaffold(
-
-            ) { paddingValues ->
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+        fun NoToolbarWrapper(navController: NavController, title: String, content: @Composable () -> Unit) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(0.9f)
-                        )
-                    }
-                    HorizontalDivider()
-                    content(paddingValues)
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    )
                 }
+                HorizontalDivider()
+                content()
             }
         }
     }

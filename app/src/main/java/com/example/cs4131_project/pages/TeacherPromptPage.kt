@@ -27,17 +27,17 @@ import com.example.cs4131_project.R
 import com.example.cs4131_project.components.NoToolbarWrapper.Companion.NoToolbarWrapper
 import kotlinx.coroutines.launch
 
-class StudentPromptPage {
+class TeacherPromptPage {
     companion object {
         @Composable
-        fun StudentPromptPage(navController: NavController) {
+        fun TeacherPromptPage(navController: NavController) {
             val context = LocalContext.current
             var className by remember {mutableStateOf("")}
 
-            NoToolbarWrapper(navController, getString(context, R.string.studentPromptPageTitle)) {
+            NoToolbarWrapper(navController, getString(context, R.string.teacherPromptPageTitle)) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = getString(context, R.string.studentPromptPage1),
+                    text = getString(context, R.string.teacherPromptPage1),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.fillMaxWidth(0.9f)
                 )
@@ -45,7 +45,7 @@ class StudentPromptPage {
                 TextField(
                     value = className,
                     onValueChange = { newText -> className = newText },
-                    placeholder = { Text(getString(context, R.string.studentPromptPage2)) },
+                    placeholder = { Text(getString(context, R.string.teacherPromptPage2)) },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     )
@@ -58,20 +58,20 @@ class StudentPromptPage {
                 ) {
                     Button(
                         onClick = {
-                            navController.navigate("studentDashboardPage")
+                            navController.navigate("teacherDashboardPage")
                         },
                         modifier = Modifier.width(150.dp)
                     ) {
-                        Text(getString(context, R.string.studentPromptPage3))
+                        Text(getString(context, R.string.teacherPromptPage3))
                     }
                     Spacer(modifier = Modifier.width(20.dp))
                     Button(
                         onClick = {
-                            navController.navigate("studentDashboardPage")
+                            navController.navigate("teacherDashboardPage")
                         },
                         modifier = Modifier.width(150.dp)
                     ) {
-                        Text(getString(context, R.string.studentPromptPage4))
+                        Text(getString(context, R.string.teacherPromptPage4))
                     }
                 }
             }

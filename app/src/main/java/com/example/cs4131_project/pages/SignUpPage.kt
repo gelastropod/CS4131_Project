@@ -118,7 +118,17 @@ class SignUpPage {
                     Spacer(modifier = Modifier.height(15.dp))
                     Button(
                         onClick = {
-
+                            when (mode) {
+                                "personal" -> {
+                                    navController.navigate("teacherDashboardPage")
+                                }
+                                "student" -> {
+                                    navController.navigate("studentPromptPage")
+                                }
+                                "teacher" -> {
+                                    navController.navigate("teacherPromptPage")
+                                }
+                            }
                         }
                     ) {
                         Text(getString(context, R.string.signUpPage3))

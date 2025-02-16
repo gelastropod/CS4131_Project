@@ -29,8 +29,11 @@ import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.example.cs4131_project.pages.HomePage.Companion.HomePage
 import com.example.cs4131_project.pages.Onboarding.Companion.Onboarding
+import com.example.cs4131_project.pages.PersonalDashboardPage.Companion.PersonalDashboardPage
 import com.example.cs4131_project.pages.SignInPage.Companion.SignInPage
 import com.example.cs4131_project.pages.SignUpPage.Companion.SignUpPage
+import com.example.cs4131_project.pages.StudentPromptPage.Companion.StudentPromptPage
+import com.example.cs4131_project.pages.TeacherPromptPage.Companion.TeacherPromptPage
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -111,5 +114,8 @@ fun MainApp(resources: Resources, context: Context) {
                 SignUpPage(navController, mode)
             }
         }
+        composable("studentPromptPage") {StudentPromptPage(navController)}
+        composable("teacherPromptPage") {TeacherPromptPage(navController)}
+        composable("personalDashboardPage") { PersonalDashboardPage(navController)}
     }
 }
