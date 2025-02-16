@@ -17,25 +17,20 @@ import com.example.cs4131_project.R
 import com.example.cs4131_project.components.DashboardWrapper.Companion.DashboardWrapper
 import com.example.cs4131_project.components.DoubleLazyColumn.Companion.DoubleLazyColumn
 
-class PersonalDashboardPage {
+class ClassDashboardPage {
     companion object {
         @Composable
-        fun PersonalDashboardPage(navController: NavController) {
+        fun ClassDashboardPage(navController: NavController, mode: String) {
             val context = LocalContext.current
 
-            DashboardWrapper(navController, getString(context, R.string.personalDashboardPageTitle), "personal") {
+            DashboardWrapper(navController, getString(context, R.string.classDashboardPageTitle), mode) {
                 DoubleLazyColumn(
                     items = arrayListOf(
-                        Pair("new", "Create New"),
                         Pair("notes", "test1"),
                         Pair("graph", "test2")
                     ),
-                    onClick = { item ->
-                        when (item.first) {
-                            "new" -> {
-                                navController.navigate("createNewPage/personal")
-                            }
-                        }
+                    onClick = {
+
                     }
                 ) { item ->
                     Column (

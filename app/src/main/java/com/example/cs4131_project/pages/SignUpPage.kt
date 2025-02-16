@@ -120,7 +120,7 @@ class SignUpPage {
                         onClick = {
                             when (mode) {
                                 "personal" -> {
-                                    navController.navigate("teacherDashboardPage")
+                                    navController.navigate("personalDashboardPage")
                                 }
                                 "student" -> {
                                     navController.navigate("studentPromptPage")
