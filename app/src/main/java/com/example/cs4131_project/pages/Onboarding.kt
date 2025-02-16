@@ -199,6 +199,6 @@ fun Onboarding3(context: Context) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("idk")
+        Text("Placeholder for more Onboarding content")
     }
 }

@@ -29,23 +29,21 @@ class ClassDashboardPage {
                         Pair("notes", "test1"),
                         Pair("graph", "test2")
                     ),
-                    onClick = {
-
+                    onClick = { item ->
+                        when (item.first) {
+                            "notes" -> {
+                                navController.navigate("notesPage/personal")
+                            }
+                            "graph" -> {
+                                navController.navigate("graphPage/personal")
+                            }
+                        }
                     }
                 ) { item ->
                     Column (
                         modifier = Modifier.fillMaxSize()
                     ) {
                         when (item.first) {
-                            "new" -> {
-                                Icon(
-                                    painter = painterResource(R.drawable.plus),
-                                    contentDescription = "New",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                )
-                            }
                             "notes" -> {
                                 Icon(
                                     painter = painterResource(R.drawable.note),

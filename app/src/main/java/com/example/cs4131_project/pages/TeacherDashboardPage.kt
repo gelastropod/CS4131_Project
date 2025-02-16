@@ -35,6 +35,12 @@ class TeacherDashboardPage {
                             "new" -> {
                                 navController.navigate("createNewPage/teacher")
                             }
+                            "notes" -> {
+                                navController.navigate("notesPage/personal")
+                            }
+                            "graph" -> {
+                                navController.navigate("graphPage/personal")
+                            }
                         }
                     }
                 ) { item ->
