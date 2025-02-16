@@ -1,25 +1,37 @@
 package com.example.cs4131_project.pages
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +43,7 @@ class Onboarding {
         fun Onboarding(navController: NavController, userPreferences: SharedPreferences) {
             val pagerState = rememberPagerState(pageCount = {3})
             val scrollScope = rememberCoroutineScope()
+            val context = LocalContext.current
 
             HorizontalPager(state = pagerState) { page ->
                 Column (
@@ -39,19 +52,19 @@ class Onboarding {
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Row (
-                        modifier = Modifier.fillMaxHeight(),
+                        modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         when (page) {
-                            0 -> Onboarding1()
-                            1 -> Onboarding2()
-                            2 -> Onboarding3()
+                            0 -> Onboarding1(context)
+                            1 -> Onboarding2(context)
+                            2 -> Onboarding3(context)
                         }
                     }
                     Row (
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (page != 0) {
@@ -61,11 +74,25 @@ class Onboarding {
                                         pagerState.scrollToPage(page - 1)
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth(0.4f)
+                                modifier = Modifier.width(150.dp)
                             ) {
                                 Text("Previous")
                             }
                         }
+                        else {
+                            Button(
+                                onClick = {
+                                    scrollScope.launch {
+                                        pagerState.scrollToPage(page - 1)
+                                    }
+                                },
+                                modifier = Modifier.width(150.dp),
+                                enabled = false
+                            ) {
+                                Text("Previous")
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(20.dp))
                         if (page != 2) {
                             Button(
                                 onClick = {
@@ -73,7 +100,7 @@ class Onboarding {
                                         pagerState.scrollToPage(page + 1)
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth(0.4f)
+                                modifier = Modifier.width(150.dp)
                             ) {
                                 Text("Next")
                             }
@@ -89,7 +116,7 @@ class Onboarding {
                                         popUpTo("onBoardingPage") { inclusive = true }
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth(0.4f)
+                                modifier = Modifier.width(150.dp)
                             ) {
                                 Text("Done")
                             }
@@ -102,37 +129,76 @@ class Onboarding {
 }
 
 @Composable
-fun Onboarding1() {
+fun Onboarding1(context: Context) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Welcome to\nGraphium!",
-            style = MaterialTheme.typography.titleLarge
+            text = getString(context, R.string.onboarding1_1),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
         )
         Image(
             painter = painterResource(R.drawable.app_icon),
             contentDescription = "CS4131 image funny",
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.9f)
         )
         Text(
-            text = "Your all-in-one math workspace",
-            modifier = Modifier.fillMaxWidth(0.8f)
+            text = getString(context, R.string.onboarding1_2),
+            modifier = Modifier.fillMaxWidth(0.9f),
+            textAlign = TextAlign.Center
         )
         Text(
-            text = "Create · Graph · Learn"
+            text = getString(context, R.string.onboarding1_3),
+            textAlign = TextAlign.Center
         )
     }
 }
 
 @Composable
-fun Onboarding2() {
+fun Onboarding2(context: Context) {
+    Column (
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = getString(context, R.string.onboarding2_1),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(0.dp))
+        Text(
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(getString(context, R.string.onboarding2_2_1))
+                }
+                append(getString(context, R.string.onboarding2_2_2))
 
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(getString(context, R.string.onboarding2_2_3))
+                }
+                append(getString(context, R.string.onboarding2_2_4))
+
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(getString(context, R.string.onboarding2_2_5))
+                }
+                append(getString(context, R.string.onboarding2_2_6))
+            },
+            modifier = Modifier.fillMaxWidth(0.9f)
+        )
+    }
 }
 
 @Composable
-fun Onboarding3() {
-
+fun Onboarding3(context: Context) {
+    Column (
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("idk")
+    }
 }

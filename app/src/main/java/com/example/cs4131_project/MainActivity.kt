@@ -21,12 +21,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.example.cs4131_project.pages.HomePage.Companion.HomePage
 import com.example.cs4131_project.pages.Onboarding.Companion.Onboarding
+import com.example.cs4131_project.pages.PersonalDashboardPage.Companion.PersonalDashboardPage
+import com.example.cs4131_project.pages.SignInPage.Companion.SignInPage
+import com.example.cs4131_project.pages.SignUpPage.Companion.SignUpPage
+import com.example.cs4131_project.pages.StudentPromptPage.Companion.StudentPromptPage
+import com.example.cs4131_project.pages.TeacherPromptPage.Companion.TeacherPromptPage
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -74,7 +81,7 @@ fun MainApp(resources: Resources, context: Context) {
 
     NavHost(
         navController = navController,
-        startDestination = if (showOnboarding) "onboardingPage" else "onboardingPage",
+        startDestination = if (showOnboarding) "onboardingPage" else "homePage",
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
@@ -85,5 +92,30 @@ fun MainApp(resources: Resources, context: Context) {
     ) {
         composable("onboardingPage") { Onboarding(navController, MainActivity.sharedPreferences) }
         composable("homePage") { HomePage(navController) }
+        composable(
+            "signInPage/{mode}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            if (mode != null) {
+                SignInPage(navController, mode)
+            }
+        }
+        composable(
+            "signUpPage/{mode}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            if (mode != null) {
+                SignUpPage(navController, mode)
+            }
+        }
+        composable("studentPromptPage") {StudentPromptPage(navController)}
+        composable("teacherPromptPage") {TeacherPromptPage(navController)}
+        composable("personalDashboardPage") { PersonalDashboardPage(navController)}
     }
 }
