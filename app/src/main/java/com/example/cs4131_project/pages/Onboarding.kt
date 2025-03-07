@@ -37,90 +37,84 @@ import com.example.cs4131_project.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class Onboarding {
-    companion object {
-        @Composable
-        fun Onboarding(navController: NavController, userPreferences: SharedPreferences) {
-            val pagerState = rememberPagerState(pageCount = {3})
-            val scrollScope = rememberCoroutineScope()
-            val context = LocalContext.current
+@Composable
+fun Onboarding(navController: NavController, userPreferences: SharedPreferences) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scrollScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-            HorizontalPager(state = pagerState) { page ->
-                Column (
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Row (
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
+    HorizontalPager(state = pagerState) { page ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                when (page) {
+                    0 -> Onboarding1(context)
+                    1 -> Onboarding2(context)
+                    2 -> Onboarding3(context)
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (page != 0) {
+                    Button(
+                        onClick = {
+                            scrollScope.launch {
+                                pagerState.scrollToPage(page - 1)
+                            }
+                        },
+                        modifier = Modifier.width(150.dp)
                     ) {
-                        when (page) {
-                            0 -> Onboarding1(context)
-                            1 -> Onboarding2(context)
-                            2 -> Onboarding3(context)
-                        }
+                        Text("Previous")
                     }
-                    Row (
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                } else {
+                    Button(
+                        onClick = {
+                            scrollScope.launch {
+                                pagerState.scrollToPage(page - 1)
+                            }
+                        },
+                        modifier = Modifier.width(150.dp),
+                        enabled = false
                     ) {
-                        if (page != 0) {
-                            Button(
-                                onClick = {
-                                    scrollScope.launch {
-                                        pagerState.scrollToPage(page - 1)
-                                    }
-                                },
-                                modifier = Modifier.width(150.dp)
-                            ) {
-                                Text("Previous")
+                        Text("Previous")
+                    }
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                if (page != 2) {
+                    Button(
+                        onClick = {
+                            scrollScope.launch {
+                                pagerState.scrollToPage(page + 1)
                             }
-                        }
-                        else {
-                            Button(
-                                onClick = {
-                                    scrollScope.launch {
-                                        pagerState.scrollToPage(page - 1)
-                                    }
-                                },
-                                modifier = Modifier.width(150.dp),
-                                enabled = false
-                            ) {
-                                Text("Previous")
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(20.dp))
-                        if (page != 2) {
-                            Button(
-                                onClick = {
-                                    scrollScope.launch {
-                                        pagerState.scrollToPage(page + 1)
-                                    }
-                                },
-                                modifier = Modifier.width(150.dp)
-                            ) {
-                                Text("Next")
-                            }
-                        }
-                        else {
-                            Button(
-                                onClick = {
-                                    val editor = userPreferences.edit()
-                                    editor.putBoolean("showOnboarding", false)
-                                    editor.apply()
+                        },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text("Next")
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            val editor = userPreferences.edit()
+                            editor.putBoolean("showOnboarding", false)
+                            editor.apply()
 
-                                    navController.navigate("homePage") {
-                                        popUpTo("onBoardingPage") { inclusive = true }
-                                    }
-                                },
-                                modifier = Modifier.width(150.dp)
-                            ) {
-                                Text("Done")
+                            navController.navigate("homePage") {
+                                popUpTo("onBoardingPage") { inclusive = true }
                             }
-                        }
+                        },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text("Done")
                     }
                 }
             }
@@ -129,7 +123,7 @@ class Onboarding {
 }
 
 @Composable
-fun Onboarding1(context: Context) {
+private fun Onboarding1(context: Context) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -158,7 +152,7 @@ fun Onboarding1(context: Context) {
 }
 
 @Composable
-fun Onboarding2(context: Context) {
+private fun Onboarding2(context: Context) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -193,7 +187,7 @@ fun Onboarding2(context: Context) {
 }
 
 @Composable
-fun Onboarding3(context: Context) {
+private fun Onboarding3(context: Context) {
     Column (
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),

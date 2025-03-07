@@ -44,146 +44,147 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.NoToolbarWrapper.Companion.NoToolbarWrapper
+import com.example.cs4131_project.components.NoToolbarWrapper
 import kotlinx.coroutines.launch
 
-class DashboardWrapper {
-    companion object {
-        @Composable
-        fun DashboardWrapper(navController: NavController, title: String, mode: String, content: @Composable () -> Unit) {
-            val drawerState = rememberDrawerState(DrawerValue.Closed)
-            val scope = rememberCoroutineScope()
-            val context = LocalContext.current
-            var showLogOutDialog by remember{ mutableStateOf(false)}
+@Composable
+fun DashboardWrapper(
+    navController: NavController,
+    title: String,
+    mode: String,
+    content: @Composable () -> Unit
+) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var showLogOutDialog by remember { mutableStateOf(false) }
 
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet(
-                        modifier = Modifier.fillMaxWidth(0.5f)
-                    ) {
-                        Text(
-                            text= "Graphium",
-                            modifier = Modifier.padding(16.dp)
-                        )
-                        HorizontalDivider()
-                        NavigationDrawerItem(
-                            label = { Text("Dashboard") },
-                            selected = false,
-                            onClick = {
-                                navController.navigate("${mode}DashboardPage")
-                            },
-                            shape = RectangleShape
-                        )
-                        NavigationDrawerItem(
-                            label = { Text("Settings") },
-                            selected = false,
-                            onClick = {
-                                navController.navigate("settingsPage/$mode")
-                            },
-                            shape = RectangleShape
-                        )
-                        if (mode != "personal") {
-                            NavigationDrawerItem(
-                                label = { Text("Classes") },
-                                selected = false,
-                                onClick = {
-                                    navController.navigate(mode + "ClassListPage")
-                                },
-                                shape = RectangleShape
-                            )
-                        }
-                        NavigationDrawerItem(
-                            label = { Text("Log Out") },
-                            selected = false,
-                            onClick = {
-                                showLogOutDialog = true
-                            },
-                            shape = RectangleShape
-                        )
-                        NavigationDrawerItem(
-                            label = { Text("Import...") },
-                            selected = false,
-                            onClick = {  },
-                            shape = RectangleShape
-                        )
-                        NavigationDrawerItem(
-                            label = { Text("Export...") },
-                            selected = false,
-                            onClick = {  },
-                            shape = RectangleShape
-                        )
-                    }
-                }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.fillMaxWidth(0.5f)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp)
-                            .padding(10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawerState.open()
-                                }
-                            },
-                            modifier = Modifier.align(Alignment.TopStart)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.menu),
-                                contentDescription = "Menu"
-                            )
-                        }
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.Center)
-                        )
-                    }
-                    HorizontalDivider()
-                    Box(
-                        modifier = Modifier.padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        content()
-                    }
-                    if (showLogOutDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showLogOutDialog = false },
-                            title = { Text(text = getString(context, R.string.dashboardWrapper1)) },
-                            text = { Text(text = getString(context, R.string.dashboardWrapper2)) },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    showLogOutDialog = false
-                                    navController.navigate("homePage")
-                                }) {
-                                    Text(getString(context, R.string.dashboardWrapper3))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = {
-                                    showLogOutDialog = false
-                                }) {
-                                    Text(getString(context, R.string.dashboardWrapper4))
-                                }
-                            },
-                            properties = DialogProperties(
-                                dismissOnBackPress = true,
-                                dismissOnClickOutside = true
-                            )
-                        )
-                    }
+                Text(
+                    text = "Graphium",
+                    modifier = Modifier.padding(16.dp)
+                )
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    label = { Text("Dashboard") },
+                    selected = false,
+                    onClick = {
+                        navController.navigate("${mode}DashboardPage")
+                    },
+                    shape = RectangleShape
+                )
+                NavigationDrawerItem(
+                    label = { Text("Settings") },
+                    selected = false,
+                    onClick = {
+                        navController.navigate("settingsPage/$mode")
+                    },
+                    shape = RectangleShape
+                )
+                if (mode != "personal") {
+                    NavigationDrawerItem(
+                        label = { Text("Classes") },
+                        selected = false,
+                        onClick = {
+                            navController.navigate(mode + "ClassListPage")
+                        },
+                        shape = RectangleShape
+                    )
                 }
+                NavigationDrawerItem(
+                    label = { Text("Log Out") },
+                    selected = false,
+                    onClick = {
+                        showLogOutDialog = true
+                    },
+                    shape = RectangleShape
+                )
+                NavigationDrawerItem(
+                    label = { Text("Import...") },
+                    selected = false,
+                    onClick = { },
+                    shape = RectangleShape
+                )
+                NavigationDrawerItem(
+                    label = { Text("Export...") },
+                    selected = false,
+                    onClick = { },
+                    shape = RectangleShape
+                )
+            }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .padding(10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.TopStart)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.menu),
+                        contentDescription = "Menu"
+                    )
+                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                )
+            }
+            HorizontalDivider()
+            Box(
+                modifier = Modifier.padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                content()
+            }
+            if (showLogOutDialog) {
+                AlertDialog(
+                    onDismissRequest = { showLogOutDialog = false },
+                    title = { Text(text = getString(context, R.string.dashboardWrapper1)) },
+                    text = { Text(text = getString(context, R.string.dashboardWrapper2)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showLogOutDialog = false
+                            navController.navigate("homePage")
+                        }) {
+                            Text(getString(context, R.string.dashboardWrapper3))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showLogOutDialog = false
+                        }) {
+                            Text(getString(context, R.string.dashboardWrapper4))
+                        }
+                    },
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    )
+                )
             }
         }
     }
