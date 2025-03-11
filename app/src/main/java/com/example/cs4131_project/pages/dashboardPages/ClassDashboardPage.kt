@@ -14,8 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.DashboardWrapper
-import com.example.cs4131_project.components.DoubleLazyColumn
+import com.example.cs4131_project.components.wrappers.DashboardWrapper
+import com.example.cs4131_project.components.utility.DoubleLazyColumn
 
 @Composable
 fun ClassDashboardPage(navController: NavController, mode: String) {

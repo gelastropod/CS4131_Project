@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.DashboardWrapper
+import com.example.cs4131_project.components.wrappers.DashboardWrapper
 
 @Composable
 fun SettingsPage(navController: NavController, mode: String) {

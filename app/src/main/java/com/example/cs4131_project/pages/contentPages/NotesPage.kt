@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.ContentWrapper
+import com.example.cs4131_project.components.wrappers.ContentWrapper
 
 @Composable
 fun NotesPage(navController: NavController, mode: String) {

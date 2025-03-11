@@ -1,15 +1,19 @@
 package com.example.cs4131_project.pages.contentPages
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.ContentWrapper
+import com.example.cs4131_project.components.graphics.GLView
+import com.example.cs4131_project.components.wrappers.ContentWrapper
 
 @Composable
 fun GraphPage(navController: NavController, mode: String) {
@@ -29,6 +33,14 @@ fun GraphPage(navController: NavController, mode: String) {
             }
         }
     ) {
-        Text("Graph goes here")
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                GLView(context).apply {}
+            },
+            update = { view ->
+
+            }
+        )
     }
 }

@@ -105,7 +105,7 @@ fun MainApp(resources: Resources, context: Context) {
 
     NavHost(
         navController = navController,
-        startDestination = if (showOnboarding) "onboardingPage" else "homePage",
+        startDestination = if (showOnboarding) "onboardingPage" else "graphPage/personal",
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {

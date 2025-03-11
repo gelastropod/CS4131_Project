@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.ContentWrapper
+import com.example.cs4131_project.components.wrappers.ContentWrapper
 
 object EquationPage {
     lateinit var selected: MutableState<Int>

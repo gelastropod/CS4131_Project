@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.NoToolbarWrapper
+import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 
 @Composable
 fun TeacherPromptPage(navController: NavController) {

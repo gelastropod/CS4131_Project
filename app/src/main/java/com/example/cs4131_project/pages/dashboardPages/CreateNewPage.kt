@@ -31,7 +31,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.DashboardWrapper
+import com.example.cs4131_project.components.wrappers.DashboardWrapper
 
 @Composable
 fun CreateNewPage(navController: NavController, mode: String) {
