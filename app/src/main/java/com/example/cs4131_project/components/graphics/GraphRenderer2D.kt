@@ -8,23 +8,23 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.View
+import com.example.cs4131_project.model.utility.Point
+import com.example.cs4131_project.model.utility.Point2D
 
 class GraphRenderer2D(context: Context) : View(context) {
     private val paint = Paint().apply {color = Color.RED}
-    private var x = 0f
-    private var y = 0f
-    private var z = 0f
-    private val points: ArrayList<Point>
+    private val points: ArrayList<Point> = arrayListOf()
     private val handler = Handler(Looper.getMainLooper())
     private var frameStart = SystemClock.elapsedRealtime()
+    private var drawer = Drawer(Canvas())
+    private val point = Point2D(100f, 100f)
 
     private val updateRunnable = object : Runnable {
         override fun run() {
             val currentTime = SystemClock.elapsedRealtime()
             val elapsedTime = 0.001f * (currentTime - frameStart)
             frameStart = currentTime
-            y += 1000f * elapsedTime
-            if (y > height) y = 0f
+
             invalidate()
             handler.postDelayed(this, 8)
         }
@@ -37,6 +37,8 @@ class GraphRenderer2D(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawCircle(x, y, 50f, paint)
+        drawer.canvas = canvas
+
+        drawer.drawLine(point, point * 2f, paint)
     }
 }
