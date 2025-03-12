@@ -12,7 +12,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.graphics.GLView
+import com.example.cs4131_project.components.graphics.GraphRenderer2D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
 
 @Composable
@@ -36,7 +36,7 @@ fun GraphPage(navController: NavController, mode: String) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                GLView(context).apply {}
+                GraphRenderer2D(context).apply {}
             },
             update = { view ->
 
