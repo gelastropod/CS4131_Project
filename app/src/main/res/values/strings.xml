@@ -54,7 +54,7 @@
     <string name="createClassPage2">Class name...</string>
     <string name="createClassPage3">Create class</string>
     <string name="settingsPageTitle">Settings</string>
-    <string name="createNewPageTitle">Create New</string>
+    <string name="createNewPageTitle">Create new</string>
     <string name="createNewPage1">New graph</string>
     <string name="createNewPage2">New notes</string>
     <string name="createNewPage3">Create new\ </string>
@@ -78,5 +78,6 @@
     <string name="contentWrapper9">Edit</string>
     <string name="contentWrapper10">Delete</string>
     <string name="graphPageTitle">Graph</string>
+    <string name="graphMenuItem1">Recenter graph</string>
     <string name="equationPageTitle">Equations</string>
 </resources>

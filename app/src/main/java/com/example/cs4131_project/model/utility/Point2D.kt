@@ -1,6 +1,6 @@
 package com.example.cs4131_project.model.utility
 
-data class Point2D(val x: Double, val y: Double) {
+data class Point2D(var x: Double, var y: Double) {
     companion object {
         fun point(point: Point): Point2D {
             return Point2D(point.x, point.z)

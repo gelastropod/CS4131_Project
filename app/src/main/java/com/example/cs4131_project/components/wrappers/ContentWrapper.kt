@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +40,8 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, mode: String, content: @Composable () -> Unit) {
-    var expanded by remember { mutableStateOf(false)}
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, content: @Composable () -> Unit) {
+    val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
@@ -63,37 +65,38 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
-                    onClick = { expanded = !expanded },
+                    onClick = { expandedState.value = !expandedState.value },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
-                        painter = painterResource(id = if (expanded) R.drawable.menu_up else R.drawable.menu_down),
+                        painter = painterResource(id = if (expandedState.value) R.drawable.menu_up else R.drawable.menu_down),
                         contentDescription = "Overflow Menu"
                     )
                 }
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                    expanded = expandedState.value,
+                    onDismissRequest = { expandedState.value = false },
                     offset = DpOffset(x = (-300).dp, y = 0.dp)
                 ) {
+                    menuItems(expandedState)
                     DropdownMenuItem(
                         text = { Text(getString(context, R.string.contentWrapper1)) },
                         onClick = {
-                            expanded = false
+                            expandedState.value = false
                             navController.navigate("${mode}DashboardPage")
                         }
                     )
                     DropdownMenuItem(
                         text = { Text(getString(context, R.string.contentWrapper2)) },
                         onClick = {
-                            expanded = false
+                            expandedState.value = false
                             navController.navigate("${mode}DashboardPage")
                         }
                     )
                     DropdownMenuItem(
                         text = { Text(getString(context, R.string.contentWrapper3)) },
                         onClick = {
-                            expanded = false
+                            expandedState.value = false
                             showDialog = true
                         }
                     )
@@ -101,13 +104,13 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         DropdownMenuItem(
                             text = { Text(getString(context, R.string.contentWrapper9)) },
                             onClick = {
-                                expanded = false
+                                expandedState.value = false
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(getString(context, R.string.contentWrapper10)) },
                             onClick = {
-                                expanded = false
+                                expandedState.value = false
                             }
                         )
                     }

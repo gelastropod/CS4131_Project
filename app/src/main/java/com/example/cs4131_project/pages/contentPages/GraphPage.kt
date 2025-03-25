@@ -2,6 +2,7 @@ package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.Paint
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import com.example.cs4131_project.components.wrappers.ContentWrapper
 fun GraphPage(navController: NavController, mode: String) {
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
+    lateinit var renderer: GraphRenderer2D
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {
@@ -35,14 +37,26 @@ fun GraphPage(navController: NavController, mode: String) {
                     contentDescription = "Equations"
                 )
             }
+        },
+        menuItems = { expandedState ->
+            DropdownMenuItem(
+                text = {Text(context.getString(R.string.graphMenuItem1))},
+                onClick = {
+                    expandedState.value = false
+
+                    renderer.recenter()
+                }
+            )
         }
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                GraphRenderer2D(context, Paint().apply{
+                renderer = GraphRenderer2D(context, Paint().apply{
                     color = backgroundColor.toArgb()
                 }).apply {}
+
+                renderer
             },
             update = { view ->
 
