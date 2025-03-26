@@ -7,6 +7,8 @@ data class Point2D(var x: Double, var y: Double) {
         }
     }
 
+    constructor() : this(0.0, 0.0)
+
     operator fun plus(other: Point2D): Point2D {
         return Point2D(x + other.x, y + other.y)
     }
@@ -31,8 +33,8 @@ data class Point2D(var x: Double, var y: Double) {
         return Point2D(x / other.x, y / other.y)
     }
 
-    operator fun times(other: Point2D): Double {
-        return x * other.x + y * other.y
+    operator fun times(other: Point2D): Point2D {
+        return Point2D(x * other.x, y * other.y)
     }
 
     override fun toString(): String {

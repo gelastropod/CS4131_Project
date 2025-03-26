@@ -24,6 +24,8 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private val handler = Handler(Looper.getMainLooper())
     private var frameStart = SystemClock.elapsedRealtime()
 
+    private val screenSpace = Point2D(width.toDouble(), height.toDouble())
+
     private val backgroundColorPoint = toPoint(background)
     private val canvasBackgroundColorPoint = Point(1.0, 1.0, 1.0)
     private val lineColorPoint = Point(0.0, 0.0, 0.0)
@@ -137,14 +139,24 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
 
     private var lastTouchX = 0f
     private var lastTouchY = 0f
+    private var lastTouchPoint = Point2D()
 
     private var scaleFactor = 1.0f
     private val scaleGestureDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            lastTouchPoint = Point2D(detector.focusX.toDouble(), detector.focusY.toDouble())
+            return true
+        }
+
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             val scale = detector.scaleFactor
 
             scaleFactor *= scale
             scaleFactor = scaleFactor.coerceIn(0.5f, 3.0f)
+
+            val focusPoint = Point2D(detector.focusX.toDouble(), detector.focusY.toDouble())
+            viewPoint += (focusPoint - lastTouchPoint) / screenSpace * size * 2.0
+            lastTouchPoint = focusPoint
 
             size /= scale.toDouble()
 
