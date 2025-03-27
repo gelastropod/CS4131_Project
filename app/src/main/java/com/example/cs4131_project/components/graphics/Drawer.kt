@@ -31,4 +31,12 @@ class Drawer(var canvas: Canvas) {
     fun drawLine(start: Point2D, end: Point2D, color: Int) {
         drawLine(start, end, toPaint(color))
     }
+
+    fun drawText(text: String, position: Point2D, color: Paint) {
+        val textWidth = color.measureText(text)
+
+        val fontMetrics = color.fontMetrics
+
+        canvas.drawText(text, position.x.toFloat() - textWidth - 10.0f, position.y.toFloat() - fontMetrics.top - 5.0f, color)
+    }
 }

@@ -9,6 +9,10 @@ data class Point2D(var x: Double, var y: Double) {
 
     constructor() : this(0.0, 0.0)
 
+    private fun isEqual(x: Double, y: Double): Boolean {
+        return Math.abs(x - y) < 0.01
+    }
+
     operator fun plus(other: Point2D): Point2D {
         return Point2D(x + other.x, y + other.y)
     }
@@ -35,6 +39,10 @@ data class Point2D(var x: Double, var y: Double) {
 
     operator fun times(other: Point2D): Point2D {
         return Point2D(x * other.x, y * other.y)
+    }
+
+    fun equals(other: Point2D): Boolean {
+        return isEqual(x, other.x) && isEqual(y, other.y)
     }
 
     override fun toString(): String {

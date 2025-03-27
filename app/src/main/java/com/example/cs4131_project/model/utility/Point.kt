@@ -48,4 +48,18 @@ data class Point(val x: Double, val y: Double, val z: Double) {
             style = Paint.Style.FILL
         }
     }
+
+    fun toLinePaint(stroke: Float) : Paint {
+        return toPaint().apply{
+            strokeWidth = stroke
+            style = Paint.Style.STROKE
+        }
+    }
+
+    fun toTextPaint(textSize: Float) : Paint {
+        return toPaint().apply {
+            this.textSize = textSize
+            isAntiAlias = true
+        }
+    }
 }

@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import com.example.cs4131_project.components.graphics.Drawer.Companion.toPaint
 import com.example.cs4131_project.model.graphics.GridDrawer
 import com.example.cs4131_project.model.utility.Matrix
 import com.example.cs4131_project.model.utility.Point
@@ -24,7 +25,7 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private val handler = Handler(Looper.getMainLooper())
     private var frameStart = SystemClock.elapsedRealtime()
 
-    private val screenSpace = Point2D(width.toDouble(), height.toDouble())
+    private var screenSpace = Point2D(width.toDouble(), height.toDouble())
 
     private val backgroundColorPoint = toPoint(background)
     private val canvasBackgroundColorPoint = Point(1.0, 1.0, 1.0)
@@ -33,12 +34,15 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private var power10 = 0
     private var minorSpace = Point2D(1.0, 1.0)
     private var majorSpace = Point2D(5.0, 5.0)
-    private val defaultMinorSpace = Point2D(1.0, 1.0)
-    private val defaultMajorSpace = Point2D(5.0, 5.0)
     private var viewPoint = Point2D(0.0, 0.0)
     private val centerPoint = Point2D(0.0, 0.0)
     private var size = Point2D(10.5, 10.5)
-    private val defaultSize = Point2D(10.5, 10.5)
+    private var scale = Point2D(1.0, 1.0)
+    private val correctionFactor = Point2D(-1.0, 1.0)
+
+    private var centering = false
+
+    private var initialized = false
 
     private val dPoint = Point2D(0.0, 0.0)
 
@@ -70,11 +74,7 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     */
 
     fun recenter() {
-        power10 = 0
-        viewPoint = centerPoint
-        minorSpace = defaultMinorSpace
-        majorSpace = defaultMajorSpace
-        size = defaultSize
+        centering = true
     }
 
     private val updateRunnable = object : Runnable {
@@ -82,6 +82,46 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
             val currentTime = SystemClock.elapsedRealtime()
             val elapsedTime = 0.001 * (currentTime - frameStart)
             frameStart = currentTime
+
+            if (centering) {
+                size += (screenSpace / 100.0 - size) * 0.3
+                viewPoint += (centerPoint - viewPoint) * 0.3
+                if (power10 == 0 && size.equals(screenSpace / 100.0) && viewPoint.equals(centerPoint)) {
+                    centering = false
+                }
+            }
+
+            var numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+            while (numSpaces.x >= 18.0) {
+                when (minorSpace.x.toInt()) {
+                    1 -> minorSpace *= 2.0
+                    2 -> {
+                        minorSpace *= 2.5
+                        majorSpace *= 0.8
+                    }
+                    5 -> {
+                        minorSpace /= 5.0
+                        majorSpace *= 1.25
+                        power10++
+                    }
+                }
+                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+            }
+            while (numSpaces.x <= 7.0) {
+                when (minorSpace.x.toInt()) {
+                    1 -> {
+                        minorSpace *= 5.0
+                        majorSpace *= 0.8
+                        power10--
+                    }
+                    2 -> minorSpace /= 2.0
+                    5 -> {
+                        minorSpace /= 2.5
+                        majorSpace *= 1.25
+                    }
+                }
+                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+            }
 
             /*
             if (pointsA.size == numPoints)
@@ -107,6 +147,8 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     }
 
     init {
+        screenSpace = Point2D(width.toDouble(), height.toDouble())
+
         setBackgroundColor(Color.WHITE)
 
         handler.post(updateRunnable)
@@ -116,11 +158,19 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
+        if (!drawer.getSize().equals(screenSpace)) {
+            screenSpace = drawer.getSize()
+            size = screenSpace / 100.0
+        }
+
         super.onDraw(canvas)
+
+        canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
 
         drawer.canvas = canvas
 
-        gridDrawer.draw(minorSpace * Math.pow(10.0, power10.toDouble()), majorSpace, viewPoint - size, viewPoint + size, lineColorPoint, canvasBackgroundColorPoint)
+        scale = size / screenSpace * 2.0 * correctionFactor
+        gridDrawer.draw(minorSpace * Math.pow(10.0, power10.toDouble()), majorSpace, viewPoint - size, viewPoint + size, lineColorPoint, canvasBackgroundColorPoint, power10)
 
         /*
         for (index in 1..<pointsA.size) {
@@ -144,7 +194,7 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private var scaleFactor = 1.0f
     private val scaleGestureDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-            lastTouchPoint = Point2D(detector.focusX.toDouble(), detector.focusY.toDouble())
+            lastTouchPoint = Point2D(-detector.focusX.toDouble(), detector.focusY.toDouble())
             return true
         }
 
@@ -154,14 +204,14 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
             scaleFactor *= scale
             scaleFactor = scaleFactor.coerceIn(0.5f, 3.0f)
 
-            val focusPoint = Point2D(detector.focusX.toDouble(), detector.focusY.toDouble())
+            val focusPoint = Point2D(-detector.focusX.toDouble(), detector.focusY.toDouble())
             viewPoint += (focusPoint - lastTouchPoint) / screenSpace * size * 2.0
             lastTouchPoint = focusPoint
 
             size /= scale.toDouble()
 
             var numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
-            while (numSpaces.x >= 25.0) {
+            while (numSpaces.x >= 18.0) {
                 when (minorSpace.x.toInt()) {
                     1 -> minorSpace *= 2.0
                     2 -> {
@@ -176,7 +226,7 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
                 }
                 numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
             }
-            while (numSpaces.x <= 10.0) {
+            while (numSpaces.x <= 7.0) {
                 when (minorSpace.x.toInt()) {
                     1 -> {
                         minorSpace *= 5.0
