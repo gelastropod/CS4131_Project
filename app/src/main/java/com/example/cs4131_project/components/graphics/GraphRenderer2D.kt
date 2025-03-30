@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import com.example.cs4131_project.components.graphics.Drawer.Companion.toPaint
+import com.example.cs4131_project.model.graph.Equation
 import com.example.cs4131_project.model.graphics.GridDrawer
 import com.example.cs4131_project.model.utility.Matrix
 import com.example.cs4131_project.model.utility.Point
@@ -47,6 +48,21 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private val dPoint = Point2D(0.0, 0.0)
 
     private var scaling = 0
+
+    private val equation1 = Equation(
+        {x ->
+            x
+        },
+        Point(1.0, 0.5, 0.5)
+    )
+    private val equation2 = Equation(
+        {x ->
+            x * x
+        },
+        Point(0.5, 0.5, 1.0)
+    )
+
+    private val equations = arrayListOf(equation1, equation2)
 
     /*
     private val paintA = toPoint(Paint().apply {color = Color.RED})
@@ -171,6 +187,10 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
 
         scale = size / screenSpace * 2.0 * correctionFactor
         gridDrawer.draw(minorSpace * Math.pow(10.0, power10.toDouble()), majorSpace, viewPoint - size, viewPoint + size, lineColorPoint, canvasBackgroundColorPoint, power10)
+
+       for (equation in equations) {
+            equation.drawOnGrid(gridDrawer, viewPoint, size, backgroundColorPoint)
+        }
 
         /*
         for (index in 1..<pointsA.size) {

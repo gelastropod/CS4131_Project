@@ -9,6 +9,10 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 class GridDrawer(var drawer: Drawer) {
+    companion object {
+        private val correctionFactor = Point2D(1.0, -1.0)
+    }
+
     private fun properMod(a: Double, b: Double) : Double {
         if (Math.abs(a % b) <= 1e-6)
             return b
@@ -35,7 +39,6 @@ class GridDrawer(var drawer: Drawer) {
         val offsetY = startY - minBound.y
         val size = drawer.getSize()
         val scale = size / (maxBound - minBound)
-        val correctionFactor = Point2D(1.0, -1.0)
         val stupidConstant = size * Point2D(0.0, 1.0)
 
         val minorLineColor = color * 0.1 + background * 0.9
@@ -87,6 +90,27 @@ class GridDrawer(var drawer: Drawer) {
 
         if (minBound.x.sign != maxBound.x.sign && minBound.y.sign != maxBound.y.sign) {
             drawer.drawText("0",  stupidConstant - minBound * scale * correctionFactor, color.toTextPaint(40f))
+        }
+    }
+
+    private fun convertToUV(minBound: Point2D, maxBound: Point2D, point: Point2D): Point2D {
+        return (point - minBound) / (maxBound - minBound)
+    }
+
+    fun drawGraph(minBound: Point2D, maxBound: Point2D, color: Point, background: Point, precision: Int, equation: (Double) -> Double?) {
+        val size = drawer.getSize()
+        val stupidConstant = size * Point2D(0.0, 1.0)
+
+        for (value in 1..precision) {
+            val prevX = minBound.x + ((value - 1).toDouble() / precision) * (maxBound.x - minBound.x)
+            val crntX = minBound.x + (value.toDouble() / precision) * (maxBound.x - minBound.x)
+            val prevY = equation(prevX)
+            val crntY = equation(crntX)
+            if (prevY == null || crntY == null) continue
+            if ((prevY < minBound.y && crntY < minBound.y) || (prevY > maxBound.y && crntY > maxBound.y)) continue
+            val prev = stupidConstant + convertToUV(minBound, maxBound, Point2D(prevX, prevY)) * size * correctionFactor
+            val crnt = stupidConstant + convertToUV(minBound, maxBound, Point2D(crntX, crntY)) * size * correctionFactor
+            drawer.drawLine(prev, crnt, color.toLinePaint(2f))
         }
     }
 }
