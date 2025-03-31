@@ -1,12 +1,13 @@
 package com.example.cs4131_project.model.graph
 
 import android.graphics.Paint
+import android.util.Log
 import com.example.cs4131_project.model.graphics.GridDrawer
 import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point2D
 import net.objecthunter.exp4j.ExpressionBuilder
 
-data class Equation(val equation: (Double) -> Double?, val color: Point, val precision: Int = 1000) {
+data class Equation(val equation: (Double) -> Double?, val color: Point, val precision: Int = 500) {
     fun drawOnGrid(gridDrawer: GridDrawer, viewPoint: Point2D, size: Point2D, backgroundColor: Point) {
         gridDrawer.drawGraph(viewPoint - size, viewPoint + size, color, backgroundColor, precision, equation)
     }
@@ -35,7 +36,7 @@ data class Equation(val equation: (Double) -> Double?, val color: Point, val pre
                 .replace("\\sign{", "signum(")
                 .replace("\\ln{", "ln(")
                 .replace("\\cdot", "*")
-                .replace("}^{", ")**(")
+                .replace("}^{", ")^(")
                 .replace("}{", ")/(")
                 .replace("}", ")")
                 .replace("{", "(")
@@ -45,20 +46,25 @@ data class Equation(val equation: (Double) -> Double?, val color: Point, val pre
             val mathExpression = latexToMath(latex)
 
             return { x: Double ->
-                val result = ExpressionBuilder(mathExpression)
-                    .variable("x")
-                    .build()
-                    .setVariable("x", x)
-                    .evaluate()
+                try {
+                    val result = ExpressionBuilder(mathExpression)
+                        .variable("x")
+                        .build()
+                        .setVariable("x", x)
+                        .evaluate()
 
-                if (result.isNaN() || result.isInfinite()) {
+                    if (result.isNaN() || result.isInfinite()) {
+                        null
+                    } else {
+                        result
+                    }
+                }
+                catch (e: Exception) {
                     null
-                } else {
-                    result
                 }
             }
         }
     }
 
-    constructor(latex: String, color: Point, precision: Int = 1000) : this(parseLatexToFunction(latex), color, precision)
+    constructor(latex: String, color: Point, precision: Int = 500) : this(parseLatexToFunction(latex), color, precision)
 }

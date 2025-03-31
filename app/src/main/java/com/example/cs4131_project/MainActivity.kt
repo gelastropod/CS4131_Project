@@ -42,6 +42,7 @@ import com.example.cs4131_project.pages.noToolbarPages.HomePage
 import com.example.cs4131_project.pages.dashboardPages.JoinClassPage
 import com.example.cs4131_project.pages.contentPages.NotesPage
 import com.example.cs4131_project.pages.Onboarding
+import com.example.cs4131_project.pages.contentPages.EquationEditorPage
 import com.example.cs4131_project.pages.dashboardPages.PersonalDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.SettingsPage
 import com.example.cs4131_project.pages.noToolbarPages.SignInPage
@@ -107,7 +108,7 @@ fun MainApp(resources: Resources, context: Context) {
     var showOnboarding by remember {mutableStateOf(MainActivity.sharedPreferences.getBoolean("showOnboarding", true))}
     val graphViewModel: GraphViewModel = viewModel()
 
-    graphViewModel.addEquation(
+    /*graphViewModel.addEquation(
         Equation(
             {x ->
                 x
@@ -122,7 +123,7 @@ fun MainApp(resources: Resources, context: Context) {
             },
             Point(0.5, 0.5, 1.0)
         )
-    )
+    )*/
 
     NavHost(
         navController = navController,
@@ -245,6 +246,19 @@ fun MainApp(resources: Resources, context: Context) {
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
                 EquationPage(navController, mode, graphViewModel)
+            }
+        }
+        composable(
+            "equationEditorPage/{mode}/{index}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("index") {type = NavType.StringType}
+            )
+        ) {backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val index = backStackEntry.arguments?.getString("index")
+            if (mode != null && index != null) {
+                EquationEditorPage(navController, mode, index.toInt(), graphViewModel)
             }
         }
     }

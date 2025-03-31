@@ -5,6 +5,12 @@ import android.util.Log
 import com.example.cs4131_project.components.graphics.Drawer
 import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point2D
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -101,6 +107,8 @@ class GridDrawer(var drawer: Drawer) {
         val size = drawer.getSize()
         val stupidConstant = size * Point2D(0.0, 1.0)
 
+        val points = arrayListOf<Point2D>()
+
         for (value in 1..precision) {
             val prevX = minBound.x + ((value - 1).toDouble() / precision) * (maxBound.x - minBound.x)
             val crntX = minBound.x + (value.toDouble() / precision) * (maxBound.x - minBound.x)
@@ -108,9 +116,20 @@ class GridDrawer(var drawer: Drawer) {
             val crntY = equation(crntX)
             if (prevY == null || crntY == null) continue
             if ((prevY < minBound.y && crntY < minBound.y) || (prevY > maxBound.y && crntY > maxBound.y)) continue
-            val prev = stupidConstant + convertToUV(minBound, maxBound, Point2D(prevX, prevY)) * size * correctionFactor
-            val crnt = stupidConstant + convertToUV(minBound, maxBound, Point2D(crntX, crntY)) * size * correctionFactor
-            drawer.drawLine(prev, crnt, color.toLinePaint(2f))
+            val prev = stupidConstant + convertToUV(
+                minBound,
+                maxBound,
+                Point2D(prevX, prevY)
+            ) * size * correctionFactor
+            val crnt = stupidConstant + convertToUV(
+                minBound,
+                maxBound,
+                Point2D(crntX, crntY)
+            ) * size * correctionFactor
+            points.add(prev)
+            points.add(crnt)
         }
+
+        drawer.drawLines(points, color.toLinePaint(2f))
     }
 }

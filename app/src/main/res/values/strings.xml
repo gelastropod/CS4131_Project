@@ -81,4 +81,5 @@
     <string name="graphMenuItem1">Recenter graph</string>
     <string name="equationPageTitle">Equations</string>
     <string name="equationPage1">Enter expression...</string>
+    <string name="equationEditorPageTitle">Edit Equation</string>
 </resources>

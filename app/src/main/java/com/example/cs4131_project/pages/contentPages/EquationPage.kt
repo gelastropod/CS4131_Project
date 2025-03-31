@@ -1,6 +1,8 @@
 package com.example.cs4131_project.pages.contentPages
 
+import android.graphics.Color
 import android.util.Log
+import android.view.MotionEvent
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -11,6 +13,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +53,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.graph.Equation
 import com.example.cs4131_project.model.graph.GraphViewModel
+import com.example.cs4131_project.model.utility.Point
 
 object EquationPage {
     lateinit var selected: MutableState<Int>
@@ -57,12 +63,10 @@ object EquationPage {
 }
 
 @Composable
-fun MathInputApp() {
-    val inputExpressionState = remember{ mutableStateOf("")}
+fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
+    val inputExpressionState = remember{ mutableStateOf(graphViewModel.equationStrings[index])}
     val latexContentState = remember{ mutableStateOf("")}
-    val context = LocalContext.current
 
-    // Function to update LaTeX content
     fun updateLaTeX() {
         latexContentState.value = """
             <!DOCTYPE html>
@@ -73,72 +77,61 @@ fun MathInputApp() {
                 </script>
             </head>
             <body>
-                <p>\(${inputExpressionState.value}\)</p>
+                <p>\(f(x)=${inputExpressionState.value}\)</p>
             </body>
             </html>
         """
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        TextField(
-            value = inputExpressionState.value,
-            onValueChange = { inputExpressionState.value = it },
-            placeholder = { Text(getString(context, R.string.equationPage1)) },
-            modifier = Modifier.fillMaxWidth()
-        )
+    updateLaTeX()
 
-        Spacer(modifier = Modifier.height(16.dp))
+    val webViewState = rememberUpdatedState(latexContentState.value)
 
-        val webViewState = rememberUpdatedState(latexContentState.value)
+    AndroidView(
+        factory = { context ->
+            WebView(context).apply {
+                settings.javaScriptEnabled = true
 
-        AndroidView(
-            factory = { context ->
-                WebView(context).apply {
-                    settings.javaScriptEnabled = true
-
-                    webViewClient = object : WebViewClient() {
-                        override fun shouldOverrideUrlLoading(
-                            view: WebView?,
-                            request: WebResourceRequest?
-                        ): Boolean {
-                            return false
-                        }
+                webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        return false
                     }
-
-                    webChromeClient = object : WebChromeClient() {
-                        override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                            consoleMessage?.let {
-                                Toast.makeText(context, "Console message: ${it.message()}", Toast.LENGTH_SHORT).show()
-                                Log.e("WebView Console Error", it.message())
-                                return true
-                            }
-                            return false
-                        }
-                    }
-
-                    loadData(latexContentState.value, "text/html", "UTF-8")
                 }
-            },
-            update = { webView ->
-                webView.loadData(webViewState.value, "text/html", "UTF-8")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                        consoleMessage?.let {
+                            Toast.makeText(context, "Console message: ${it.message()}", Toast.LENGTH_SHORT).show()
+                            Log.e("WebView Console Error", it.message())
+                            return true
+                        }
+                        return false
+                    }
+                }
 
-        Button(onClick = { updateLaTeX() }) {
-            Text("Render LaTeX")
-        }
-    }
+                loadData(latexContentState.value, "text/html", "UTF-8")
+
+                setOnTouchListener { _, event ->
+                    if (event.action == MotionEvent.ACTION_DOWN) {
+                        performClick()
+                        EquationPage.selected.value = index
+                    }
+                    false
+                }
+
+                setBackgroundColor(Color.TRANSPARENT)
+            }
+        },
+        update = { webView ->
+            webView.loadData(webViewState.value, "text/html", "UTF-8")
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+    )
 }
 
 @Composable
@@ -156,6 +149,27 @@ fun EquationPage(navController: NavController, mode: String, graphViewModel: Gra
         getString(context, R.string.equationPageTitle),
         EquationPage.selected.value,
         mode = mode,
+        menuItems = { expandedState ->
+            if (EquationPage.selected.value != -1) {
+                DropdownMenuItem(
+                    text = { Text(getString(context, R.string.contentWrapper9)) },
+                    onClick = {
+                        expandedState.value = false
+
+                        navController.navigate("equationEditorPage/$mode/${EquationPage.selected.value}")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(getString(context, R.string.contentWrapper10)) },
+                    onClick = {
+                        expandedState.value = false
+
+                        graphViewModel.removeEquation(EquationPage.selected.value)
+                        EquationPage.selected.value = -1
+                    }
+                )
+            }
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -168,37 +182,43 @@ fun EquationPage(navController: NavController, mode: String, graphViewModel: Gra
                 )
             }
         }
-    ) {/*
+    ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(50) { index ->
-                Button(
-                    onClick = {
-                        EquationPage.selected.value = index
-                    },
-                    shape = RectangleShape,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (EquationPage.selected.value == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                    )
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Button(
+                        onClick = {
+                            graphViewModel.addEquation("", Point(1.0, 0.5, 0.5))
+                        }
                     ) {
-                        Text(
-                            "Equation $index",
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Text("Create New Equation")
                     }
                 }
             }
-        }*/
-        MathInputApp()
+            items(graphViewModel.equationStrings.size) { index ->
+                val equationString = graphViewModel.equationStrings[index]
+
+                Button(
+                    modifier = Modifier.fillMaxWidth()
+                        .height(50.dp),
+                    onClick = {},
+                    shape = RectangleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor =
+                    if (EquationPage.selected.value == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary)
+                ) {
+                    MathInputApp(graphViewModel, index)
+                }
+            }
+        }
     }
 }

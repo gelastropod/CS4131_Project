@@ -32,6 +32,20 @@ class Drawer(var canvas: Canvas) {
         drawLine(start, end, toPaint(color))
     }
 
+    fun drawLines(points: ArrayList<Point2D>, color: Paint) {
+        if (points.isEmpty()) return
+
+        val lineVertices = FloatArray(points.size * 4 - 4)
+        for (index in 1..<points.size) {
+            lineVertices[index * 4 - 4] = points[index - 1].x.toFloat()
+            lineVertices[index * 4 - 3] = points[index - 1].y.toFloat()
+            lineVertices[index * 4 - 2] = points[index].x.toFloat()
+            lineVertices[index * 4 - 1] = points[index].y.toFloat()
+        }
+
+        canvas.drawLines(lineVertices, color)
+    }
+
     fun drawText(text: String, position: Point2D, color: Paint) {
         val textWidth = color.measureText(text)
 

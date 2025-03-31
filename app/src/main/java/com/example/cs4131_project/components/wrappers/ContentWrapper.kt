@@ -38,13 +38,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
+import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, content: @Composable () -> Unit) {
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, content: @Composable () -> Unit) {
     val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
+
+    graphViewModel?.readArrayListFromFile(context, name)
 
     Scaffold(
         floatingActionButton = floatingActionButton
@@ -89,6 +92,8 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                     DropdownMenuItem(
                         text = { Text(getString(context, R.string.contentWrapper2)) },
                         onClick = {
+                            graphViewModel?.saveArrayListToFile(context, name)
+
                             expandedState.value = false
                             navController.navigate("${mode}DashboardPage")
                         }
@@ -100,20 +105,6 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                             showDialog = true
                         }
                     )
-                    if (selectedState != -1) {
-                        DropdownMenuItem(
-                            text = { Text(getString(context, R.string.contentWrapper9)) },
-                            onClick = {
-                                expandedState.value = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(getString(context, R.string.contentWrapper10)) },
-                            onClick = {
-                                expandedState.value = false
-                            }
-                        )
-                    }
                 }
                 Text(
                     text = title,
