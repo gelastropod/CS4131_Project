@@ -21,12 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
+import com.example.cs4131_project.model.graph.Equation
+import com.example.cs4131_project.model.graph.GraphViewModel
+import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.pages.dashboardPages.ClassDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.ClassDetailsPage
 import com.example.cs4131_project.pages.dashboardPages.CreateClassPage
@@ -101,7 +105,24 @@ fun MainApp(resources: Resources, context: Context) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     var showOnboarding by remember {mutableStateOf(MainActivity.sharedPreferences.getBoolean("showOnboarding", true))}
+    val graphViewModel: GraphViewModel = viewModel()
 
+    graphViewModel.addEquation(
+        Equation(
+            {x ->
+                x
+            },
+            Point(1.0, 0.5, 0.5)
+        )
+    )
+    graphViewModel.addEquation(
+        Equation(
+            {x ->
+                x * x
+            },
+            Point(0.5, 0.5, 1.0)
+        )
+    )
 
     NavHost(
         navController = navController,
@@ -212,7 +233,7 @@ fun MainApp(resources: Resources, context: Context) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                GraphPage(navController, mode)
+                GraphPage(navController, mode, graphViewModel)
             }
         }
         composable(
@@ -223,7 +244,7 @@ fun MainApp(resources: Resources, context: Context) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                EquationPage(navController, mode)
+                EquationPage(navController, mode, graphViewModel)
             }
         }
     }

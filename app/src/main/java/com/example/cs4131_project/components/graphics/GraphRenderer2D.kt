@@ -11,8 +11,10 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cs4131_project.components.graphics.Drawer.Companion.toPaint
 import com.example.cs4131_project.model.graph.Equation
+import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.graphics.GridDrawer
 import com.example.cs4131_project.model.utility.Matrix
 import com.example.cs4131_project.model.utility.Point
@@ -20,24 +22,17 @@ import com.example.cs4131_project.model.utility.Point.Companion.toPoint
 import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point2D.Companion.point
 
-class GraphRenderer2D(context: Context, background: Paint) : View(context) {
+class GraphRenderer2D(context: Context, background: Paint, private val graphViewModel: GraphViewModel? = null) : View(context) {
     private val drawer = Drawer(Canvas())
     private val gridDrawer = GridDrawer(drawer)
     private val handler = Handler(Looper.getMainLooper())
     private var frameStart = SystemClock.elapsedRealtime()
 
-    private var screenSpace = Point2D(width.toDouble(), height.toDouble())
-
     private val backgroundColorPoint = toPoint(background)
     private val canvasBackgroundColorPoint = Point(1.0, 1.0, 1.0)
     private val lineColorPoint = Point(0.0, 0.0, 0.0)
 
-    private var power10 = 0
-    private var minorSpace = Point2D(1.0, 1.0)
-    private var majorSpace = Point2D(5.0, 5.0)
-    private var viewPoint = Point2D(0.0, 0.0)
     private val centerPoint = Point2D(0.0, 0.0)
-    private var size = Point2D(10.5, 10.5)
     private var scale = Point2D(1.0, 1.0)
     private val correctionFactor = Point2D(-1.0, 1.0)
 
@@ -48,21 +43,6 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private val dPoint = Point2D(0.0, 0.0)
 
     private var scaling = 0
-
-    private val equation1 = Equation(
-        {x ->
-            x
-        },
-        Point(1.0, 0.5, 0.5)
-    )
-    private val equation2 = Equation(
-        {x ->
-            x * x
-        },
-        Point(0.5, 0.5, 1.0)
-    )
-
-    private val equations = arrayListOf(equation1, equation2)
 
     /*
     private val paintA = toPoint(Paint().apply {color = Color.RED})
@@ -99,59 +79,61 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
             val elapsedTime = 0.001 * (currentTime - frameStart)
             frameStart = currentTime
 
+            if (graphViewModel == null) return
+
             if (centering) {
-                size += (screenSpace / 100.0 - size) * 0.3
-                viewPoint += (centerPoint - viewPoint) * 0.3
-                if (power10 == 0 && size.equals(screenSpace / 100.0) && viewPoint.equals(centerPoint)) {
+                graphViewModel.size += (graphViewModel.screenSpace / 100.0 - graphViewModel.size) * 0.3
+                graphViewModel.viewPoint += (centerPoint - graphViewModel.viewPoint) * 0.3
+                if (graphViewModel.power10 == 0 && graphViewModel.size.equals(graphViewModel.screenSpace / 100.0) && graphViewModel.viewPoint.equals(centerPoint)) {
                     centering = false
                 }
             }
 
-            var numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+            var numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             while (numSpaces.x >= 18.0) {
-                when (minorSpace.x.toInt()) {
-                    1 -> minorSpace *= 2.0
+                when (graphViewModel.minorSpace.x.toInt()) {
+                    1 -> graphViewModel.minorSpace *= 2.0
                     2 -> {
-                        minorSpace *= 2.5
-                        majorSpace *= 0.8
+                        graphViewModel.minorSpace *= 2.5
+                        graphViewModel.majorSpace *= 0.8
                     }
                     5 -> {
-                        minorSpace /= 5.0
-                        majorSpace *= 1.25
-                        power10++
+                        graphViewModel.minorSpace /= 5.0
+                        graphViewModel.majorSpace *= 1.25
+                        graphViewModel.power10++
                     }
                 }
-                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+                numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             }
             while (numSpaces.x <= 7.0) {
-                when (minorSpace.x.toInt()) {
+                when (graphViewModel.minorSpace.x.toInt()) {
                     1 -> {
-                        minorSpace *= 5.0
-                        majorSpace *= 0.8
-                        power10--
+                        graphViewModel.minorSpace *= 5.0
+                        graphViewModel.majorSpace *= 0.8
+                        graphViewModel.power10--
                     }
-                    2 -> minorSpace /= 2.0
+                    2 -> graphViewModel.minorSpace /= 2.0
                     5 -> {
-                        minorSpace /= 2.5
-                        majorSpace *= 1.25
+                        graphViewModel.minorSpace /= 2.5
+                        graphViewModel.majorSpace *= 1.25
                     }
                 }
-                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
+                numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             }
 
             /*
-            if (pointsA.size == numPoints)
+            if (pointsA.graphViewModel.size == numPoints)
                 pointsA.removeAt(0)
 
-            val previousPointA = pointsA[pointsA.size - 1]
+            val previousPointA = pointsA[pointsA.graphViewModel.size - 1]
             val dPointA = lorenz(previousPointA)
             val newPointA = previousPointA + dPointA * elapsedTime
             pointsA.add(newPointA)
 
-            if (pointsB.size == numPoints)
+            if (pointsB.graphViewModel.size == numPoints)
                 pointsB.removeAt(0)
 
-            val previousPointB = pointsB[pointsB.size - 1]
+            val previousPointB = pointsB[pointsB.graphViewModel.size - 1]
             val dPointB = lorenz(previousPointB)
             val newPointB = previousPointB + dPointB * elapsedTime
             pointsB.add(newPointB)
@@ -163,8 +145,6 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     }
 
     init {
-        screenSpace = Point2D(width.toDouble(), height.toDouble())
-
         setBackgroundColor(Color.WHITE)
 
         handler.post(updateRunnable)
@@ -174,10 +154,7 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (!drawer.getSize().equals(screenSpace)) {
-            screenSpace = drawer.getSize()
-            size = screenSpace / 100.0
-        }
+        if (graphViewModel == null) return
 
         super.onDraw(canvas)
 
@@ -185,22 +162,22 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
 
         drawer.canvas = canvas
 
-        scale = size / screenSpace * 2.0 * correctionFactor
-        gridDrawer.draw(minorSpace * Math.pow(10.0, power10.toDouble()), majorSpace, viewPoint - size, viewPoint + size, lineColorPoint, canvasBackgroundColorPoint, power10)
+        scale = graphViewModel.size / graphViewModel.screenSpace * 2.0 * correctionFactor
+        gridDrawer.draw(graphViewModel.minorSpace * Math.pow(10.0, graphViewModel.power10.toDouble()), graphViewModel.majorSpace, graphViewModel.viewPoint - graphViewModel.size, graphViewModel.viewPoint + graphViewModel.size, lineColorPoint, canvasBackgroundColorPoint, graphViewModel.power10)
 
-       for (equation in equations) {
-            equation.drawOnGrid(gridDrawer, viewPoint, size, backgroundColorPoint)
+        for (equation in graphViewModel.equations) {
+            equation.drawOnGrid(gridDrawer, graphViewModel.viewPoint, graphViewModel.size, backgroundColorPoint)
         }
 
         /*
-        for (index in 1..<pointsA.size) {
-            val indexFraction = index.toFloat() / pointsA.size.toFloat()
+        for (index in 1..<pointsA.graphViewModel.size) {
+            val indexFraction = index.toFloat() / pointsA.graphViewModel.size.toFloat()
             val lineColorPoint = paintA * indexFraction + backgroundColorPoint * (1f - indexFraction)
             drawer.drawLine(point(pointsA[index - 1]) * 10f, point(pointsA[index]) * 10f, lineColorPoint.toPaint())
         }
 
-        for (index in 1..<pointsB.size) {
-            val indexFraction = index.toFloat() / pointsB.size.toFloat()
+        for (index in 1..<pointsB.graphViewModel.size) {
+            val indexFraction = index.toFloat() / pointsB.graphViewModel.size.toFloat()
             val lineColorPoint = paintB * indexFraction + backgroundColorPoint * (1f - indexFraction)
             drawer.drawLine(point(pointsB[index - 1]) * 10f, point(pointsB[index]) * 10f, lineColorPoint.toPaint())
         }
@@ -211,6 +188,17 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
     private var lastTouchY = 0f
     private var lastTouchPoint = Point2D()
 
+    override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
+        super.onSizeChanged(w, h, oldW, oldH)
+
+        if (graphViewModel == null) return
+
+        graphViewModel.screenSpace = Point2D(w.toDouble(), h.toDouble())
+        if (graphViewModel.size == Point2D(10.5, 10.5) || graphViewModel.size.x <= 0.1) {
+            graphViewModel.size = Point2D(w.toDouble(), h.toDouble()) / 100.0
+        }
+    }
+
     private var scaleFactor = 1.0f
     private val scaleGestureDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
@@ -219,48 +207,18 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
         }
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if (graphViewModel == null) return false
+
             val scale = detector.scaleFactor
 
             scaleFactor *= scale
             scaleFactor = scaleFactor.coerceIn(0.5f, 3.0f)
 
             val focusPoint = Point2D(-detector.focusX.toDouble(), detector.focusY.toDouble())
-            viewPoint += (focusPoint - lastTouchPoint) / screenSpace * size * 2.0
+            graphViewModel.viewPoint += (focusPoint - lastTouchPoint) / graphViewModel.screenSpace * graphViewModel.size * 2.0
             lastTouchPoint = focusPoint
 
-            size /= scale.toDouble()
-
-            var numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
-            while (numSpaces.x >= 18.0) {
-                when (minorSpace.x.toInt()) {
-                    1 -> minorSpace *= 2.0
-                    2 -> {
-                        minorSpace *= 2.5
-                        majorSpace *= 0.8
-                    }
-                    5 -> {
-                        minorSpace /= 5.0
-                        majorSpace *= 1.25
-                        power10++
-                    }
-                }
-                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
-            }
-            while (numSpaces.x <= 7.0) {
-                when (minorSpace.x.toInt()) {
-                    1 -> {
-                        minorSpace *= 5.0
-                        majorSpace *= 0.8
-                        power10--
-                    }
-                    2 -> minorSpace /= 2.0
-                    5 -> {
-                        minorSpace /= 2.5
-                        majorSpace *= 1.25
-                    }
-                }
-                numSpaces = size / minorSpace / Math.pow(10.0, power10.toDouble())
-            }
+            graphViewModel.size /= scale.toDouble()
 
             invalidate()
             return true
@@ -280,19 +238,21 @@ class GraphRenderer2D(context: Context, background: Paint) : View(context) {
                 lastTouchY = event.y
             }
             MotionEvent.ACTION_MOVE -> {
+                if (graphViewModel == null) return false
+
                 if (scaling == 1) {
                     scaling = 0
                     lastTouchX = event.x
                     lastTouchY = event.y
                 }
 
-                val dx = (event.x - lastTouchX) / width * (size.x * 2.0)
-                val dy = (event.y - lastTouchY) / height * (size.y * 2.0)
+                val dx = (event.x - lastTouchX) / width * (graphViewModel.size.x * 2.0)
+                val dy = (event.y - lastTouchY) / height * (graphViewModel.size.y * 2.0)
 
                 dPoint.x = -dx
                 dPoint.y = dy
 
-                viewPoint += dPoint
+                graphViewModel.viewPoint += dPoint
 
                 lastTouchX = event.x
                 lastTouchY = event.y

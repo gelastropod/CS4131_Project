@@ -45,9 +45,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.graph.GraphViewModel
 
 object EquationPage {
     lateinit var selected: MutableState<Int>
@@ -140,7 +142,7 @@ fun MathInputApp() {
 }
 
 @Composable
-fun EquationPage(navController: NavController, mode: String) {
+fun EquationPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel()) {
     val context = LocalContext.current
 
     EquationPage.initialised = true

@@ -14,16 +14,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.graphics.GraphRenderer2D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun GraphPage(navController: NavController, mode: String) {
+fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel()) {
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
-    lateinit var renderer: GraphRenderer2D
+    var renderer = GraphRenderer2D(context, Paint().apply{
+        color = backgroundColor.toArgb()
+    }, graphViewModel)
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {
@@ -54,7 +58,7 @@ fun GraphPage(navController: NavController, mode: String) {
             factory = { context ->
                 renderer = GraphRenderer2D(context, Paint().apply{
                     color = backgroundColor.toArgb()
-                }).apply {}
+                }, graphViewModel)
 
                 renderer
             },
