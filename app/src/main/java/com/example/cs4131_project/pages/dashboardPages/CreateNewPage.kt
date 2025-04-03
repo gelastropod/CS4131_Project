@@ -140,9 +140,9 @@ fun CreateNewPage(navController: NavController, mode: String) {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val destination = if (showDialog == 1) "graphPage/" else "notesPage/"
+                        val destination = if (showDialog == 1) "graphPage" else "notesPage"
                         showDialog = 0
-                        navController.navigate(destination + mode)
+                        navController.navigate("$destination/$mode/$name")
                     },
                     enabled = name.isNotBlank()
                 ) {

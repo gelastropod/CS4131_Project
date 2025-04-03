@@ -7,11 +7,7 @@ import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point2D
 import net.objecthunter.exp4j.ExpressionBuilder
 
-data class Equation(val equation: (Double) -> Double?, val color: Point, val precision: Int = 500) {
-    fun drawOnGrid(gridDrawer: GridDrawer, viewPoint: Point2D, size: Point2D, backgroundColor: Point) {
-        gridDrawer.drawGraph(viewPoint - size, viewPoint + size, color, backgroundColor, precision, equation)
-    }
-
+data class Equation(val color: Point, val equationString: String, val precision: Int = 500) {
     companion object {
         private fun latexToMath(latex: String): String {
             return latex
@@ -43,6 +39,7 @@ data class Equation(val equation: (Double) -> Double?, val color: Point, val pre
         }
 
         private fun parseLatexToFunction(latex: String): (Double) -> Double? {
+            Log.i("AAA", latex)
             val mathExpression = latexToMath(latex)
 
             return { x: Double ->
@@ -65,6 +62,10 @@ data class Equation(val equation: (Double) -> Double?, val color: Point, val pre
             }
         }
     }
+    fun drawOnGrid(gridDrawer: GridDrawer, viewPoint: Point2D, size: Point2D, backgroundColor: Point) {
+        val equation = parseLatexToFunction(equationString)
+        gridDrawer.drawGraph(viewPoint - size, viewPoint + size, color, backgroundColor, precision, equation)
+    }
 
-    constructor(latex: String, color: Point, precision: Int = 500) : this(parseLatexToFunction(latex), color, precision)
+    constructor(latex: String, color: Point, precision: Int = 500) : this(color, latex, precision)
 }

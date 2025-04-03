@@ -19,21 +19,30 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
-fun NotesPage(navController: NavController, mode: String) {
+fun NotesPage(navController: NavController, mode: String, notesContent: String, handler: FirestoreHandler, name: String) {
     val context = LocalContext.current
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(notesContent) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     ContentWrapper(
         navController,
         getString(context, R.string.notesPageTitle),
-        mode = mode
+        mode = mode,
+        handler = handler
     ) {
         TextField(
             value = text,
-            onValueChange = { text = it },
+            onValueChange = {
+                text = it
+
+                handler.unsaved = true
+
+                handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.notesItem?.notesContent = it
+            },
             modifier = Modifier.fillMaxSize(),
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Default),
             keyboardActions = KeyboardActions(

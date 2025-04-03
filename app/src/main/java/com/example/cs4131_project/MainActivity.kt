@@ -28,9 +28,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
-import com.example.cs4131_project.model.graph.Equation
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.graph.GraphViewModel
-import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.pages.dashboardPages.ClassDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.ClassDetailsPage
 import com.example.cs4131_project.pages.dashboardPages.CreateClassPage
@@ -52,6 +51,7 @@ import com.example.cs4131_project.pages.noToolbarPages.StudentPromptPage
 import com.example.cs4131_project.pages.dashboardPages.TeacherClassListPage
 import com.example.cs4131_project.pages.dashboardPages.TeacherDashboardPage
 import com.example.cs4131_project.pages.noToolbarPages.TeacherPromptPage
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -72,6 +72,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         enableImmersiveMode()
 
+        val db = FirebaseFirestore.getInstance()
+        val handler = FirestoreHandler(db.collection("mainData").document("userData"))
+
         sharedPreferences = applicationContext.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
 
         darkThemeState.value = isSystemInDarkMode(applicationContext)
@@ -81,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    MainApp(resources, applicationContext)
+                    MainApp(resources, applicationContext, handler)
                 }
             }
         }
@@ -101,33 +104,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainApp(resources: Resources, context: Context) {
+fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
     val navController = rememberNavController()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     var showOnboarding by remember {mutableStateOf(MainActivity.sharedPreferences.getBoolean("showOnboarding", true))}
     val graphViewModel: GraphViewModel = viewModel()
 
-    /*graphViewModel.addEquation(
-        Equation(
-            {x ->
-                x
-            },
-            Point(1.0, 0.5, 0.5)
-        )
-    )
-    graphViewModel.addEquation(
-        Equation(
-            {x ->
-                x * x
-            },
-            Point(0.5, 0.5, 1.0)
-        )
-    )*/
-
     NavHost(
         navController = navController,
-        startDestination = if (showOnboarding) "onboardingPage" else "graphPage/personal",
+        startDestination = if (showOnboarding) "onboardingPage" else "personalDashboardPage",
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
@@ -148,7 +134,7 @@ fun MainApp(resources: Resources, context: Context) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                SignInPage(navController, mode)
+                SignInPage(navController, mode, handler)
             }
         }
         composable(
@@ -159,14 +145,14 @@ fun MainApp(resources: Resources, context: Context) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                SignUpPage(navController, mode)
+                SignUpPage(navController, mode, handler)
             }
         }
         composable("studentPromptPage") {StudentPromptPage(navController)}
         composable("teacherPromptPage") {TeacherPromptPage(navController)}
-        composable("personalDashboardPage") { PersonalDashboardPage(navController)}
-        composable("studentDashboardPage") { StudentDashboardPage(navController)}
-        composable("teacherDashboardPage") { TeacherDashboardPage(navController)}
+        composable("personalDashboardPage") { PersonalDashboardPage(navController, handler, graphViewModel)}
+        composable("studentDashboardPage") { StudentDashboardPage(navController, handler, graphViewModel)}
+        composable("teacherDashboardPage") { TeacherDashboardPage(navController, handler, graphViewModel)}
         composable(
             "classDashboardPage/{mode}",
             arguments = listOf(
@@ -216,49 +202,59 @@ fun MainApp(resources: Resources, context: Context) {
             }
         }
         composable(
-            "notesPage/{mode}",
-            arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
-            )
-        ) { backStackEntry ->
-            val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                NotesPage(navController, mode)
-            }
-        }
-        composable(
-            "graphPage/{mode}",
-            arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
-            )
-        ) { backStackEntry ->
-            val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                GraphPage(navController, mode, graphViewModel)
-            }
-        }
-        composable(
-            "equationPage/{mode}",
-            arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
-            )
-        ) { backStackEntry ->
-            val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                EquationPage(navController, mode, graphViewModel)
-            }
-        }
-        composable(
-            "equationEditorPage/{mode}/{index}",
+            "notesPage/{mode}/{json}/{name}",
             arguments = listOf(
                 navArgument("mode") {type = NavType.StringType},
-                navArgument("index") {type = NavType.StringType}
+                navArgument("json") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val json = backStackEntry.arguments?.getString("json")
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && json != null && name != null) {
+                NotesPage(navController, mode, json, handler, name)
+            }
+        }
+        composable(
+            "graphPage/{mode}/{name}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && name != null) {
+                GraphPage(navController, mode, graphViewModel, handler, name)
+            }
+        }
+        composable(
+            "equationPage/{mode}/{name}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && name != null) {
+                EquationPage(navController, mode, graphViewModel, handler, name)
+            }
+        }
+        composable(
+            "equationEditorPage/{mode}/{index}/{name}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("index") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
             )
         ) {backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             val index = backStackEntry.arguments?.getString("index")
-            if (mode != null && index != null) {
-                EquationEditorPage(navController, mode, index.toInt(), graphViewModel)
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && index != null && name != null) {
+                EquationEditorPage(navController, mode, index.toInt(), graphViewModel, handler, name)
             }
         }
     }

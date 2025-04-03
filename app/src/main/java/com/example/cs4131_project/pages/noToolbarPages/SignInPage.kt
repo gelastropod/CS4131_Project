@@ -34,9 +34,10 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 
 @Composable
-fun SignInPage(navController: NavController, mode: String) {
+fun SignInPage(navController: NavController, mode: String, handler: FirestoreHandler) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

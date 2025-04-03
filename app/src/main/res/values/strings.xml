@@ -36,7 +36,7 @@
     <string name="teacherPromptPage2">Class name...</string>
     <string name="teacherPromptPage3">Create class</string>
     <string name="teacherPromptPage4">Later</string>
-    <string name="personalDashboardPageTitle">Welcome [username]!</string>
+    <string name="personalDashboardPageTitle">Welcome\ </string>
     <string name="studentDashboardPageTitle">Welcome [username]!</string>
     <string name="teacherDashboardPageTitle">Welcome [username]!\nViewing [class name]</string>
     <string name="classDashboardPageTitle">Class [class name]</string>
@@ -82,4 +82,7 @@
     <string name="equationPageTitle">Equations</string>
     <string name="equationPage1">Enter expression...</string>
     <string name="equationEditorPageTitle">Edit Equation</string>
+    <string name="equationPage2">Create New Equation</string>
+    <string name="dashboardWrapper5">Exit confirmation</string>
+    <string name="dashboardWrapper6">Are you sure you want to exit with unsaved changes?</string>
 </resources>

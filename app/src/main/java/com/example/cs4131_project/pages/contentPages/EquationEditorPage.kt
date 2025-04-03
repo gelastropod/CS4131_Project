@@ -9,6 +9,8 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,12 +30,14 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
 
 @Composable
-fun EquationEditorPage(navController: NavController, mode: String, index: Int, graphViewModel: GraphViewModel) {
-    val inputExpressionState = remember { mutableStateOf("") }
+fun EquationEditorPage(navController: NavController, mode: String, index: Int, graphViewModel: GraphViewModel, handler: FirestoreHandler, name: String) {
+    val inputExpressionState = remember { mutableStateOf(graphViewModel.equations[index].equationString) }
     val latexContentState = remember { mutableStateOf("") }
     val context = LocalContext.current
 
@@ -53,7 +57,7 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
         """
     }
 
-    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode) {
+    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -70,6 +74,8 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+
+            updateLaTeX()
 
             AndroidView(
                 factory = { context ->
@@ -107,23 +113,32 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
                     .height(200.dp)
             )
 
-            Button(
-                onClick = {
-                    updateLaTeX()
-                },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text("Render LaTeX")
-            }
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        handler.unsaved = true
 
-            Button(
-                onClick = {
-                    graphViewModel.setEquation(index, inputExpressionState.value, Point(1.0, 0.5, 0.5))
+                        graphViewModel.setEquation(index, inputExpressionState.value, Point(1.0, 0.5, 0.5))
 
-                    navController.navigate("equationPage/$mode")
+                        handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
+
+                        navController.navigate("equationPage/$mode/$name")
+                    }
+                ) {
+                    Text("Confirm")
                 }
-            ) {
-                Text("Back")
+                Button(
+                    onClick = {
+                        navController.navigate("equationPage/$mode/$name")
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

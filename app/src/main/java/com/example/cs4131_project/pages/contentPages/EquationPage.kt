@@ -53,6 +53,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.Equation
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
@@ -64,7 +66,6 @@ object EquationPage {
 
 @Composable
 fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
-    val inputExpressionState = remember{ mutableStateOf(graphViewModel.equationStrings[index])}
     val latexContentState = remember{ mutableStateOf("")}
 
     fun updateLaTeX() {
@@ -77,7 +78,7 @@ fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
                 </script>
             </head>
             <body>
-                <p>\(f(x)=${inputExpressionState.value}\)</p>
+                <p>\(f(x)=${graphViewModel.equations[index].equationString}\)</p>
             </body>
             </html>
         """
@@ -116,7 +117,6 @@ fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
 
                 setOnTouchListener { _, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
-                        performClick()
                         EquationPage.selected.value = index
                     }
                     false
@@ -135,7 +135,7 @@ fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
 }
 
 @Composable
-fun EquationPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel()) {
+fun EquationPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel(), handler: FirestoreHandler, name: String) {
     val context = LocalContext.current
 
     EquationPage.initialised = true
@@ -149,31 +149,11 @@ fun EquationPage(navController: NavController, mode: String, graphViewModel: Gra
         getString(context, R.string.equationPageTitle),
         EquationPage.selected.value,
         mode = mode,
-        menuItems = { expandedState ->
-            if (EquationPage.selected.value != -1) {
-                DropdownMenuItem(
-                    text = { Text(getString(context, R.string.contentWrapper9)) },
-                    onClick = {
-                        expandedState.value = false
-
-                        navController.navigate("equationEditorPage/$mode/${EquationPage.selected.value}")
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(getString(context, R.string.contentWrapper10)) },
-                    onClick = {
-                        expandedState.value = false
-
-                        graphViewModel.removeEquation(EquationPage.selected.value)
-                        EquationPage.selected.value = -1
-                    }
-                )
-            }
-        },
+        handler = handler,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("graphPage/$mode")
+                    navController.navigate("graphPage/$mode/$name")
                 }
             ) {
                 Icon(
@@ -190,25 +170,64 @@ fun EquationPage(navController: NavController, mode: String, graphViewModel: Gra
         ) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(40.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
                         onClick = {
+                            handler.unsaved = true
+
                             graphViewModel.addEquation("", Point(1.0, 0.5, 0.5))
+
+                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
                         }
                     ) {
-                        Text("Create New Equation")
+                        Text(getString(context, R.string.equationPage2))
                     }
                 }
             }
-            items(graphViewModel.equationStrings.size) { index ->
-                val equationString = graphViewModel.equationStrings[index]
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = {
+                            handler.unsaved = true
 
+                            navController.navigate("equationEditorPage/$mode/${EquationPage.selected.value}/$name")
+                        },
+                        enabled = EquationPage.selected.value != -1
+                    ) {
+                        Text(getString(context, R.string.contentWrapper9))
+                    }
+                    Button(
+                        onClick = {
+                            handler.unsaved = true
+
+                            graphViewModel.removeEquation(EquationPage.selected.value)
+                            EquationPage.selected.value = -1
+
+                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
+                        },
+                        enabled = EquationPage.selected.value != -1
+                    ) {
+                        Text(getString(context, R.string.contentWrapper10))
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+            items(graphViewModel.equations.size) { index ->
                 Button(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(50.dp),
                     onClick = {},
                     shape = RectangleShape,

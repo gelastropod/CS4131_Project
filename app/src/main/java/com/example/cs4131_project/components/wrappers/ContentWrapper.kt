@@ -38,16 +38,17 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, content: @Composable () -> Unit) {
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, content: @Composable () -> Unit) {
     val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+    var showUnsavedDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
-
-    graphViewModel?.readArrayListFromFile(context, name)
 
     Scaffold(
         floatingActionButton = floatingActionButton
@@ -86,16 +87,23 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         text = { Text(getString(context, R.string.contentWrapper1)) },
                         onClick = {
                             expandedState.value = false
-                            navController.navigate("${mode}DashboardPage")
+
+                            if (handler.unsaved) {
+                                showUnsavedDialog = true
+                            }
+                            else {
+                                navController.navigate("${mode}DashboardPage")
+                            }
                         }
                     )
                     DropdownMenuItem(
                         text = { Text(getString(context, R.string.contentWrapper2)) },
                         onClick = {
-                            graphViewModel?.saveArrayListToFile(context, name)
-
                             expandedState.value = false
-                            navController.navigate("${mode}DashboardPage")
+
+                            handler.save()
+
+
                         }
                     )
                     DropdownMenuItem(
@@ -121,6 +129,32 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                 contentAlignment = Alignment.Center
             ) {
                 content()
+            }
+            if (showUnsavedDialog) {
+                AlertDialog(
+                    onDismissRequest = { showUnsavedDialog = false },
+                    title = { Text(text = getString(context, R.string.dashboardWrapper5)) },
+                    text = { Text(text = getString(context, R.string.dashboardWrapper6)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showUnsavedDialog = false
+                            navController.navigate("${mode}DashboardPage")
+                        }) {
+                            Text(getString(context, R.string.dashboardWrapper3))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showUnsavedDialog = false
+                        }) {
+                            Text(getString(context, R.string.dashboardWrapper4))
+                        }
+                    },
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    )
+                )
             }
             if (showDialog) {
                 AlertDialog(

@@ -16,9 +16,11 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.components.utility.DoubleLazyColumn
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun TeacherDashboardPage(navController: NavController) {
+fun TeacherDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
     val context = LocalContext.current
 
     DashboardWrapper(

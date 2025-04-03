@@ -19,10 +19,11 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.graphics.GraphRenderer2D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel()) {
+fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphViewModel = viewModel(), handler: FirestoreHandler, name: String) {
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
     var renderer = GraphRenderer2D(context, Paint().apply{
@@ -33,7 +34,7 @@ fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphV
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("equationPage/$mode")
+                    navController.navigate("equationPage/$mode/$name")
                 }
             ) {
                 Icon(
@@ -51,7 +52,8 @@ fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphV
                     renderer.recenter()
                 }
             )
-        }
+        },
+        handler = handler
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
