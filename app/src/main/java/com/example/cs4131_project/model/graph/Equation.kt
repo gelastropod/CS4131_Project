@@ -7,7 +7,7 @@ import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point2D
 import net.objecthunter.exp4j.ExpressionBuilder
 
-data class Equation(val color: Point, val equationString: String, val precision: Int = 500) {
+data class Equation(var color: Point, val equationString: String, val precision: Int = 500) {
     companion object {
         private fun latexToMath(latex: String): String {
             return latex

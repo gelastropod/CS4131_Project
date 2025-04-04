@@ -47,7 +47,7 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
     val inputExpressionState = remember { mutableStateOf(graphViewModel.equations[index].equationString) }
     val context = LocalContext.current
 
-    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler) {
+    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler, originalName = name) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

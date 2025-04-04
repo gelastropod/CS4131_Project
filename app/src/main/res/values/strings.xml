@@ -37,7 +37,7 @@
     <string name="teacherPromptPage3">Create class</string>
     <string name="teacherPromptPage4">Later</string>
     <string name="personalDashboardPageTitle">Welcome\ </string>
-    <string name="studentDashboardPageTitle">Welcome [username]!</string>
+    <string name="studentDashboardPageTitle">Welcome\ </string>
     <string name="teacherDashboardPageTitle">Welcome [username]!\nViewing [class name]</string>
     <string name="classDashboardPageTitle">Class [class name]</string>
     <string name="studentClassListPageTitle">Your classes</string>
@@ -86,4 +86,22 @@
     <string name="dashboardWrapper5">Exit confirmation</string>
     <string name="dashboardWrapper6">Are you sure you want to exit with unsaved changes?</string>
     <string name="createNewPage8">Back</string>
+    <string name="contentWrapper11">Saved successfully!</string>
+    <string name="contentWrapper12">Renamed successfully!</string>
+    <string name="signInPage5">Username does not exist!</string>
+    <string name="signInPage6">Username or password is incorrect!</string>
+    <string name="signUpPage5">Username already exists!</string>
+    <string name="signUpPage6">Password and confirm password are different!</string>
+    <string name="signUpPage7">Confirm password...</string>
+    <string name="settingsPage1">Toggle light/dark mode</string>
+    <string name="settingsPage2">Toggle dynamic theme</string>
+    <string name="dashboardWrapper7">Graphium</string>
+    <string name="dashboardWrapper8">Dashboard</string>
+    <string name="dashboardWrapper9">Settings</string>
+    <string name="dashboardWrapper10">Classes</string>
+    <string name="dashboardWrapper11">Log Out</string>
+    <string name="dashboardWrapper12">Import...</string>
+    <string name="dashboardWrapper13">Export...</string>
+    <string name="dashboardWrapper14">Error loading file</string>
+    <string name="contentWrapper13">Export...</string>
 </resources>

@@ -33,9 +33,14 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.GraphItem
+import com.example.cs4131_project.model.firestoreModels.NotesItem
+import com.example.cs4131_project.model.firestoreModels.SavedItem
 
 @Composable
-fun CreateNewPage(navController: NavController, mode: String) {
+fun CreateNewPage(navController: NavController, mode: String, handler: FirestoreHandler) {
     val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(0) }
@@ -154,9 +159,22 @@ fun CreateNewPage(navController: NavController, mode: String) {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val destination = if (showDialog == 1) "graphPage" else "notesPage"
+                        if (showDialog == 1) {
+                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, SavedItem(false, null, GraphItem()))
+                        }
+                        else {
+                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, SavedItem(true, NotesItem(), null))
+                        }
+
+                        handler.unsaved = true
+
+                        if (showDialog == 1) {
+                            navController.navigate("graphPage/$mode/$name")
+                        }
+                        else {
+                            navController.navigate("notesPage/$mode//$name")
+                        }
                         showDialog = 0
-                        navController.navigate("$destination/$mode/$name")
                     },
                     enabled = name.isNotBlank()
                 ) {

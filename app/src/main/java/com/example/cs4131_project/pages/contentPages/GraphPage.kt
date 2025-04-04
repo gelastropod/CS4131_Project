@@ -53,6 +53,7 @@ fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphV
                 }
             )
         },
+        originalName = name,
         handler = handler
     ) {
         AndroidView(

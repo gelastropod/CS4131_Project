@@ -39,10 +39,11 @@ fun PersonalDashboardPage(navController: NavController, handler: FirestoreHandle
         ) + GlobalDatastore.username.value + "!",
         "personal"
     ) {
-        if (GlobalDatastore.username.value.isNotEmpty()) {
+        if (handler.data[GlobalDatastore.username.value] != null) {
             userAccount = handler.data[GlobalDatastore.username.value]
             val json = gson.toJson(handler.data)
             Log.i("PersonalDashboardPage", json)
+
             DoubleLazyColumn(
                 items = ArrayList(userAccount?.savedData?.toList()!!).apply {
                     add(0, "Create New" to SavedItem())

@@ -5,6 +5,7 @@ import android.graphics.Color.blue
 import android.graphics.Color.green
 import android.graphics.Color.red
 import android.graphics.Paint
+import androidx.compose.ui.graphics.Color as Color2
 
 data class Point(val x: Double, val y: Double, val z: Double) {
     operator fun plus(other: Point): Point {
@@ -40,6 +41,10 @@ data class Point(val x: Double, val y: Double, val z: Double) {
             val color = paint.color
             return Point(red(color) / 255.0, green(color) / 255.0, blue(color) / 255.0)
         }
+    }
+
+    fun toColor(): Color2 {
+        return Color2(x.toFloat(), y.toFloat(), z.toFloat(), 1f)
     }
 
     fun toPaint() : Paint {

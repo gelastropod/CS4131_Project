@@ -1,13 +1,23 @@
 package com.example.cs4131_project.components.wrappers
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,19 +46,112 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler.Companion
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.firestoreModels.UserAccount
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
+
+@Composable
+fun FilePickerDemo() {
+    val context = LocalContext.current
+    var fileContent by remember { mutableStateOf("No file selected") }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                fileContent = readFileContent(context, it)
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = {
+            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "*/*"
+            }
+            filePickerLauncher.launch(intent)
+        }) {
+            Text("Choose File")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("File Content:\n$fileContent")
+    }
+}
+
+fun readFileContent(context: android.content.Context, uri: Uri): String {
+    return context.contentResolver.openInputStream(uri)?.use { inputStream ->
+        BufferedReader(InputStreamReader(inputStream)).readText()
+    } ?: "Failed to read file"
+}
+
+fun getFileName(context: Context, uri: Uri): String {
+    var fileName = "unknown"
+
+    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (nameIndex != -1) {
+            cursor.moveToFirst()
+            fileName = cursor.getString(nameIndex)
+        }
+    }
+
+    return fileName
+}
 
 @Composable
 fun DashboardWrapper(
     navController: NavController,
     title: String,
     mode: String,
+    handler: FirestoreHandler? = null,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showLogOutDialog by remember { mutableStateOf(false) }
+    val gson = Gson()
+
+    val importFilePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val fileContent = readFileContent(context, it)
+
+                try {
+                    val savedItem: SavedItem = gson.fromJson(
+                        fileContent,
+                        object : TypeToken<SavedItem>() {}.type
+                    )
+                    val fileName = getFileName(context, it)
+
+                    handler!!.data[GlobalDatastore.username.value]?.savedData?.set(fileName, savedItem)
+                    handler.updateDatabase()
+                }
+                catch (e: Exception) {
+                    Toast.makeText(context, getString(context, R.string.dashboardWrapper14), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -57,12 +160,12 @@ fun DashboardWrapper(
                 modifier = Modifier.fillMaxWidth(0.5f)
             ) {
                 Text(
-                    text = "Graphium",
+                    text = getString(context, R.string.dashboardWrapper7),
                     modifier = Modifier.padding(16.dp)
                 )
                 HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text("Dashboard") },
+                    label = { Text(getString(context, R.string.dashboardWrapper8)) },
                     selected = false,
                     onClick = {
                         navController.navigate("${mode}DashboardPage")
@@ -70,7 +173,7 @@ fun DashboardWrapper(
                     shape = RectangleShape
                 )
                 NavigationDrawerItem(
-                    label = { Text("Settings") },
+                    label = { Text(getString(context, R.string.dashboardWrapper9)) },
                     selected = false,
                     onClick = {
                         navController.navigate("settingsPage/$mode")
@@ -79,7 +182,7 @@ fun DashboardWrapper(
                 )
                 if (mode != "personal") {
                     NavigationDrawerItem(
-                        label = { Text("Classes") },
+                        label = { Text(getString(context, R.string.dashboardWrapper10)) },
                         selected = false,
                         onClick = {
                             navController.navigate(mode + "ClassListPage")
@@ -88,7 +191,7 @@ fun DashboardWrapper(
                     )
                 }
                 NavigationDrawerItem(
-                    label = { Text("Log Out") },
+                    label = { Text(getString(context, R.string.dashboardWrapper11)) },
                     selected = false,
                     onClick = {
                         showLogOutDialog = true
@@ -96,15 +199,14 @@ fun DashboardWrapper(
                     shape = RectangleShape
                 )
                 NavigationDrawerItem(
-                    label = { Text("Import...") },
+                    label = { Text(getString(context, R.string.dashboardWrapper12)) },
                     selected = false,
-                    onClick = { },
-                    shape = RectangleShape
-                )
-                NavigationDrawerItem(
-                    label = { Text("Export...") },
-                    selected = false,
-                    onClick = { },
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "*/*"
+                        }
+                        importFilePickerLauncher.launch(intent)
+                    },
                     shape = RectangleShape
                 )
             }
@@ -159,6 +261,10 @@ fun DashboardWrapper(
                     confirmButton = {
                         TextButton(onClick = {
                             showLogOutDialog = false
+
+                            GlobalDatastore.username.value = ""
+                            GlobalDatastore.updatePreferences()
+
                             navController.navigate("homePage")
                         }) {
                             Text(getString(context, R.string.dashboardWrapper3))

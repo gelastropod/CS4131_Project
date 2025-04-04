@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.noToolbarPages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,13 +36,18 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.firestoreModels.UserAccount
 
 @Composable
 fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHandler) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var isConfirmPasswordVisible by remember { mutableStateOf(false) }
 
     NoToolbarWrapper(navController, getString(context, R.string.signUpPageTitle)) {
         Column(
@@ -90,12 +96,12 @@ fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHan
             )
             Spacer(modifier = Modifier.height(15.dp))
             TextField(
-                value = password,
+                value = confirmPassword,
                 onValueChange = { newText ->
-                    password = if (!newText.contains("\n")) newText else password
+                    confirmPassword = if (!newText.contains("\n")) newText else confirmPassword
                 },
-                placeholder = { Text(getString(context, R.string.signUpPage2)) },
-                visualTransformation = if (isPasswordVisible) {
+                placeholder = { Text(getString(context, R.string.signUpPage7)) },
+                visualTransformation = if (isConfirmPasswordVisible) {
                     VisualTransformation.None
                 } else {
                     PasswordVisualTransformation()
@@ -105,10 +111,10 @@ fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHan
                 ),
                 trailingIcon = {
                     IconButton(onClick = {
-                        isPasswordVisible = !isPasswordVisible
+                        isConfirmPasswordVisible = !isConfirmPasswordVisible
                     }) {
                         Icon(
-                            painter = if (isPasswordVisible) {
+                            painter = if (isConfirmPasswordVisible) {
                                 painterResource(R.drawable.eye)
                             } else {
                                 painterResource(R.drawable.eye_off)
@@ -121,6 +127,22 @@ fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHan
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
+                    if (handler.data.containsKey(username)) {
+                        Toast.makeText(context, getString(context, R.string.signUpPage5), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    if (password != confirmPassword) {
+                        Toast.makeText(context, getString(context, R.string.signUpPage6), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    handler.data[username] = UserAccount(hashMapOf(), password)
+                    handler.updateDatabase()
+
+                    GlobalDatastore.username.value = username
+                    GlobalDatastore.updatePreferences()
+
                     when (mode) {
                         "personal" -> {
                             navController.navigate("personalDashboardPage")

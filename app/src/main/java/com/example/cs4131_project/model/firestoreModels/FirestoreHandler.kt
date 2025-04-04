@@ -61,7 +61,7 @@ class FirestoreHandler(private val documentReference: DocumentReference) {
 
     init {
         updateData {
-            GlobalDatastore.username.value = "testacc"
+            GlobalDatastore.updateUsername()
         }
     }
 }

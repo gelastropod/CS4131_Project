@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,44 +18,48 @@ import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.components.utility.DoubleLazyColumn
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.firestoreModels.UserAccount
 import com.example.cs4131_project.model.graph.GraphViewModel
+import com.google.gson.Gson
 
 @Composable
 fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
     val context = LocalContext.current
+    val gson = Gson()
+
+    var userAccount: UserAccount?
 
     DashboardWrapper(
         navController,
-        getString(context, R.string.studentDashboardPageTitle),
+        getString(context, R.string.studentDashboardPageTitle) + GlobalDatastore.username.value + "!",
         "student"
     ) {
-        DoubleLazyColumn(
-            items = arrayListOf(
-                Pair("new", "Create New"),
-                Pair("notes", "test1"),
-                Pair("graph", "test2")
-            ),
-            onClick = { item ->
-                when (item.first) {
-                    "new" -> {
+        if (handler.data[GlobalDatastore.username.value] != null) {
+            userAccount = handler.data[GlobalDatastore.username.value]
+            val json = gson.toJson(handler.data)
+            Log.i("StudentDashboardPage", json)
+
+            DoubleLazyColumn(
+                items = ArrayList(userAccount?.savedData?.toList()!!).apply {
+                    add(0, "new" to SavedItem())
+                },
+                onClick = { item ->
+                    if (item.second.isEmpty()) {
                         navController.navigate("createNewPage/student")
-                    }
-
-                    "notes" -> {
-                        navController.navigate("notesPage/personal")
-                    }
-
-                    "graph" -> {
-                        navController.navigate("graphPage/personal")
+                    } else if (item.second.izNotesItem) {
+                        navController.navigate("notesPage/personal/${item.second.notesItem?.notesContent}/${item.first}")
+                    } else {
+                        graphViewModel.equations = item.second.graphItem?.equations!!
+                        navController.navigate("graphPage/personal/${item.first}")
                     }
                 }
-            }
-        ) { item ->
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when (item.first) {
-                    "new" -> {
+            ) { item ->
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (item.second.isEmpty()) {
                         Icon(
                             painter = painterResource(R.drawable.plus),
                             contentDescription = "New",
@@ -62,9 +67,7 @@ fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler
                                 .fillMaxWidth()
                                 .weight(1f)
                         )
-                    }
-
-                    "notes" -> {
+                    } else if (item.second.izNotesItem) {
                         Icon(
                             painter = painterResource(R.drawable.note),
                             contentDescription = "Notes",
@@ -72,9 +75,7 @@ fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler
                                 .fillMaxWidth()
                                 .weight(1f)
                         )
-                    }
-
-                    "graph" -> {
+                    } else {
                         Icon(
                             painter = painterResource(R.drawable.chart_bell_curve_cumulative),
                             contentDescription = "Graph",
@@ -83,13 +84,14 @@ fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler
                                 .weight(1f)
                         )
                     }
+
+                    Text(
+                        text = item.first,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-                Text(
-                    text = item.second,
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }

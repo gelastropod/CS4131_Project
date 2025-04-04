@@ -1,6 +1,13 @@
 package com.example.cs4131_project.components.wrappers
 
+import android.app.Activity
+import android.content.ContentResolver
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,14 +48,46 @@ import com.example.cs4131_project.R
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
+import com.google.gson.Gson
+import java.io.OutputStream
+
+fun writeDataToFile(context: Context, uri: Uri, data: String) {
+    val contentResolver: ContentResolver = context.contentResolver
+    val outputStream: OutputStream? = contentResolver.openOutputStream(uri)
+
+    if (outputStream != null) {
+        try {
+            outputStream.write(data.toByteArray())
+            outputStream.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, content: @Composable () -> Unit) {
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, originalName: String, content: @Composable () -> Unit) {
     val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var showUnsavedDialog by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(originalName) }
+    val gson = Gson()
+
+    val exportFilePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val savedItem = handler.data[GlobalDatastore.username.value]?.savedData?.get(originalName)!!
+
+                val dataToWrite = gson.toJson(savedItem)
+
+                writeDataToFile(context, it, dataToWrite)
+            }
+        }
+    }
 
     Scaffold(
         floatingActionButton = floatingActionButton
@@ -103,7 +142,7 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
 
                             handler.save()
 
-
+                            Toast.makeText(context, getString(context, R.string.contentWrapper11), Toast.LENGTH_SHORT).show()
                         }
                     )
                     DropdownMenuItem(
@@ -111,6 +150,19 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         onClick = {
                             expandedState.value = false
                             showDialog = true
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {Text(getString(context, R.string.contentWrapper13))},
+                        onClick = {
+                            expandedState.value = false
+
+                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TITLE, originalName)
+                            }
+                            exportFilePickerLauncher.launch(intent)
                         }
                     )
                 }
@@ -176,8 +228,14 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         TextButton(
                             onClick = {
                                 showDialog = false
-                                Toast.makeText(context, "Renamed successfully", Toast.LENGTH_SHORT)
+                                Toast.makeText(context, getString(context, R.string.contentWrapper12), Toast.LENGTH_SHORT)
                                     .show()
+
+                                handler.unsaved = true
+
+                                val savedItem = handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(originalName)
+                                handler.unsavedData[GlobalDatastore.username.value]?.savedData?.remove(originalName)
+                                handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, savedItem!!)
                             },
                             enabled = name.isNotBlank()
                         ) {

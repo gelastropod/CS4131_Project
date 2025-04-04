@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.pages.dashboardPages.ClassDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.ClassDetailsPage
@@ -76,6 +77,7 @@ class MainActivity : ComponentActivity() {
         val handler = FirestoreHandler(db.collection("mainData").document("userData"))
 
         sharedPreferences = applicationContext.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
+        GlobalDatastore.sharedPreferences = sharedPreferences
 
         darkThemeState.value = isSystemInDarkMode(applicationContext)
 
@@ -113,7 +115,10 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
 
     NavHost(
         navController = navController,
-        startDestination = if (showOnboarding) "onboardingPage" else "personalDashboardPage",
+        startDestination = if (showOnboarding) "onboardingPage" else {
+            if (GlobalDatastore.username.value.isEmpty()) "homePage"
+            else "personalDashboardPage"
+        },
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
@@ -198,7 +203,7 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                CreateNewPage(navController, mode)
+                CreateNewPage(navController, mode, handler)
             }
         }
         composable(

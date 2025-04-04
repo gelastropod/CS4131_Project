@@ -10,6 +10,8 @@
     import android.webkit.WebViewClient
     import android.widget.Toast
     import androidx.compose.foundation.BorderStroke
+    import androidx.compose.foundation.background
+    import androidx.compose.foundation.clickable
     import androidx.compose.foundation.layout.Arrangement
     import androidx.compose.foundation.layout.Box
     import androidx.compose.foundation.layout.Column
@@ -20,8 +22,11 @@
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
+    import androidx.compose.foundation.layout.size
     import androidx.compose.foundation.layout.width
     import androidx.compose.foundation.lazy.LazyColumn
+    import androidx.compose.foundation.shape.CircleShape
+    import androidx.compose.material3.AlertDialog
     import androidx.compose.material3.Button
     import androidx.compose.material3.ButtonDefaults
     import androidx.compose.material3.DropdownMenuItem
@@ -29,6 +34,7 @@
     import androidx.compose.material3.Icon
     import androidx.compose.material3.MaterialTheme
     import androidx.compose.material3.Text
+    import androidx.compose.material3.TextButton
     import androidx.compose.material3.TextField
     import androidx.compose.runtime.Composable
     import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +55,7 @@
     import androidx.compose.ui.text.style.TextAlign
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.viewinterop.AndroidView
+    import androidx.compose.ui.zIndex
     import androidx.core.content.ContextCompat.getString
     import androidx.lifecycle.viewmodel.compose.viewModel
     import androidx.navigation.NavController
@@ -67,72 +74,73 @@
     }
 
     @Composable
-    fun MathInputApp(graphViewModel: GraphViewModel, index: Int) {
-        val latexContentState = remember{ mutableStateOf("")}
+    fun ColorPickerDialogDemo(graphViewModel: GraphViewModel, index: Int, handler: FirestoreHandler) {
+        var showDialog by remember { mutableStateOf(false) }
+        var selectedColor by remember { mutableStateOf(graphViewModel.equations[index].color) }
 
-        fun updateLaTeX() {
-            latexContentState.value = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                   <script type="text/javascript" async
-                    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-                    </script>
-                </head>
-                <body>
-                    <p>\(f(x)=${graphViewModel.equations[index].equationString}\)</p>
-                </body>
-                </html>
-            """
+        Column(
+            modifier = Modifier
+                .size(50.dp, 50.dp)
+                .padding(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(selectedColor.toColor(), shape = CircleShape)
+                    .clickable { showDialog = true }
+            )
+
+            if (showDialog) {
+                ColorPickerDialog(
+                    selectedColor = selectedColor,
+                    onColorSelected = { color ->
+                        graphViewModel.equations[index].color = color
+                        selectedColor = color
+
+                        handler.unsaved = true
+
+                        showDialog = false
+                    },
+                    onDismiss = { showDialog = false }
+                )
+            }
         }
+    }
 
-        updateLaTeX()
+    @Composable
+    fun ColorPickerDialog(
+        selectedColor: Point,
+        onColorSelected: (Point) -> Unit,
+        onDismiss: () -> Unit
+    ) {
+        val colorOptions = arrayListOf(
+            Point(1.0, 0.5, 0.5),
+            Point(0.5, 0.5, 1.0)
+        )
 
-        val webViewState = rememberUpdatedState(latexContentState.value)
-
-        AndroidView(
-            factory = { context ->
-                WebView(context).apply {
-                    settings.javaScriptEnabled = true
-
-                    webViewClient = object : WebViewClient() {
-                        override fun shouldOverrideUrlLoading(
-                            view: WebView?,
-                            request: WebResourceRequest?
-                        ): Boolean {
-                            return false
-                        }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Select a Color") },
+            text = {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    colorOptions.forEach { color ->
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(color.toColor(), shape = CircleShape)
+                                .clickable { onColorSelected(color) }
+                        )
                     }
-
-                    webChromeClient = object : WebChromeClient() {
-                        override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                            consoleMessage?.let {
-                                Toast.makeText(context, "Console message: ${it.message()}", Toast.LENGTH_SHORT).show()
-                                Log.e("WebView Console Error", it.message())
-                                return true
-                            }
-                            return false
-                        }
-                    }
-
-                    loadData(latexContentState.value, "text/html", "UTF-8")
-
-                    setOnTouchListener { _, event ->
-                        if (event.action == MotionEvent.ACTION_DOWN) {
-                            EquationPage.selected.value = index
-                        }
-                        false
-                    }
-
-                    setBackgroundColor(Color.TRANSPARENT)
                 }
             },
-            update = { webView ->
-                webView.loadData(webViewState.value, "text/html", "UTF-8")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
+            confirmButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
         )
     }
 
@@ -152,6 +160,7 @@
             EquationPage.selected.value,
             mode = mode,
             handler = handler,
+            originalName = name,
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
@@ -227,29 +236,35 @@
                     }
                 }
                 items(graphViewModel.equations.size) { index ->
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        onClick = { EquationPage.selected.value = index },
-                        shape = RectangleShape,
-                        contentPadding = PaddingValues(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor =
-                            if (EquationPage.selected.value == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                        )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
-                        AndroidView(
-                            factory = { context ->
-                                MathView(context).apply {
-                                    setDisplayText("\$f(x)=${graphViewModel.equations[index].equationString}\$")
-                                    setBackgroundColor(Color.TRANSPARENT)
-                                    setOnClickListener {
-                                        EquationPage.selected.value = index
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            onClick = { EquationPage.selected.value = index },
+                            shape = RectangleShape,
+                            contentPadding = PaddingValues(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                if (EquationPage.selected.value == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            AndroidView(
+                                factory = { context ->
+                                    MathView(context).apply {
+                                        setDisplayText("\$f(x)=${graphViewModel.equations[index].equationString}\$")
+                                        setBackgroundColor(Color.TRANSPARENT)
+                                        setOnClickListener {
+                                            EquationPage.selected.value = index
+                                        }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        ColorPickerDialogDemo(graphViewModel, index, handler)
                     }
                 }
             }

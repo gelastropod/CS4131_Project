@@ -1,3 +1,5 @@
 package com.example.cs4131_project.model.firestoreModels
 
-data class NotesItem(var notesContent: String)
+data class NotesItem(var notesContent: String) {
+    constructor(): this("")
+}

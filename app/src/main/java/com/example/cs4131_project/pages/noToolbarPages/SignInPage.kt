@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.noToolbarPages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +36,7 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
 fun SignInPage(navController: NavController, mode: String, handler: FirestoreHandler) {
@@ -91,6 +93,19 @@ fun SignInPage(navController: NavController, mode: String, handler: FirestoreHan
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
+                    if (!handler.data.containsKey(username)) {
+                        Toast.makeText(context, getString(context, R.string.signInPage5), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    if (handler.data[username]?.password != password) {
+                        Toast.makeText(context, getString(context, R.string.signInPage6), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    GlobalDatastore.username.value = username
+                    GlobalDatastore.updatePreferences()
+
                     when (mode) {
                         "personal" -> {
                             navController.navigate("personalDashboardPage")

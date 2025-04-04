@@ -32,7 +32,8 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
         navController,
         getString(context, R.string.notesPageTitle),
         mode = mode,
-        handler = handler
+        handler = handler,
+        originalName = name
     ) {
         TextField(
             value = text,

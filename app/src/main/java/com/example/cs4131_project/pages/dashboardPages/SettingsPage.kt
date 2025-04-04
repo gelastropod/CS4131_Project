@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,14 +31,15 @@ fun SettingsPage(navController: NavController, mode: String) {
 
     DashboardWrapper(navController, getString(context, R.string.settingsPageTitle), mode) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().height(35.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Toggle light/dark mode")
+                    Text(getString(context, R.string.settingsPage1))
                     Spacer(modifier = Modifier.weight(1f))
                     Switch(
                         checked = MainActivity.darkThemeState.value,
