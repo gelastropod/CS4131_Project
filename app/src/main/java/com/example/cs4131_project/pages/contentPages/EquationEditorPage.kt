@@ -1,6 +1,8 @@
 package com.example.cs4131_project.pages.contentPages
 
+import android.graphics.Color
 import android.util.Log
+import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -23,7 +27,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
@@ -34,28 +40,12 @@ import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
+import katex.hourglass.`in`.mathlib.MathView
 
 @Composable
 fun EquationEditorPage(navController: NavController, mode: String, index: Int, graphViewModel: GraphViewModel, handler: FirestoreHandler, name: String) {
     val inputExpressionState = remember { mutableStateOf(graphViewModel.equations[index].equationString) }
-    val latexContentState = remember { mutableStateOf("") }
     val context = LocalContext.current
-
-    fun updateLaTeX() {
-        latexContentState.value = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-               <script type="text/javascript" async
-                src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-                </script>
-            </head>
-            <body>
-                <p>\(f(x)=${inputExpressionState.value}\)</p>
-            </body>
-            </html>
-        """
-    }
 
     ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler) {
         Column(
@@ -75,42 +65,16 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
                 singleLine = true
             )
 
-            updateLaTeX()
+            val textColor = MaterialTheme.colorScheme.onBackground
 
             AndroidView(
                 factory = { context ->
-                    WebView(context).apply {
-                        settings.javaScriptEnabled = true
-
-                        webViewClient = object : WebViewClient() {
-                            override fun shouldOverrideUrlLoading(
-                                view: WebView?,
-                                request: WebResourceRequest?
-                            ): Boolean {
-                                return false
-                            }
-                        }
-
-                        webChromeClient = object : WebChromeClient() {
-                            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                                consoleMessage?.let {
-                                    Toast.makeText(context, "Console message: ${it.message()}", Toast.LENGTH_SHORT).show()
-                                    Log.e("WebView Console Error", it.message())
-                                    return true
-                                }
-                                return false
-                            }
-                        }
-
-                        loadData(latexContentState.value, "text/html", "UTF-8")
+                    MathView(context).apply {
+                        setDisplayText("\$f(x)=" + inputExpressionState.value + "\$")
+                        setBackgroundColor(Color.TRANSPARENT)
+                        setTextColor(textColor.toArgb())
                     }
-                },
-                update = { webView ->
-                    webView.loadData(latexContentState.value, "text/html", "UTF-8")
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
+                }
             )
 
             Row(
