@@ -68,4 +68,6 @@ dependencies {
     implementation("in.hourglass.mathrender:katexmathview:1.0.3")
     implementation(libs.compose.markdown.v034)
     implementation(libs.konfetti.compose)
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
 }
