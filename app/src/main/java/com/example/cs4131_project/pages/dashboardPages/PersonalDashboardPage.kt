@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,87 +41,92 @@ fun PersonalDashboardPage(navController: NavController, handler: FirestoreHandle
     val context = LocalContext.current
 
     var userAccount: UserAccount?
+    var done by remember{mutableStateOf(false)}
 
-    if (GlobalDatastore.confettiEnabled) {
-        KonfettiView(
-            modifier = Modifier.fillMaxSize().zIndex(1f),
-            parties = listOf(
-                Party(
-                    emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(100),
-                    position = Position.Relative(1.0, 0.7),
-                    angle = Angle.TOP - 30,
-                    spread = 45
-                ),
-                Party(
-                    emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(100),
-                    position = Position.Relative(0.0, 0.7),
-                    angle = Angle.TOP + 30,
-                    spread = 45
+    handler.updateData { done = true }
+
+    if (done) {
+        if (GlobalDatastore.confettiEnabled) {
+            KonfettiView(
+                modifier = Modifier.fillMaxSize().zIndex(1f),
+                parties = listOf(
+                    Party(
+                        emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(100),
+                        position = Position.Relative(1.0, 0.7),
+                        angle = Angle.TOP - 30,
+                        spread = 45
+                    ),
+                    Party(
+                        emitter = Emitter(duration = 200, TimeUnit.MILLISECONDS).max(100),
+                        position = Position.Relative(0.0, 0.7),
+                        angle = Angle.TOP + 30,
+                        spread = 45
+                    )
                 )
             )
-        )
-    }
+        }
 
-    DashboardWrapper(
-        navController,
-        getString(
-            context,
-            R.string.personalDashboardPageTitle
-        ) + GlobalDatastore.username.value + "!",
-        "personal", handler = handler
-    ) {
-        if (handler.data[GlobalDatastore.username.value] != null) {
-            userAccount = handler.data[GlobalDatastore.username.value]
+        DashboardWrapper(
+            navController,
+            getString(
+                context,
+                R.string.personalDashboardPageTitle
+            ) + GlobalDatastore.username.value + "!",
+            "personal", handler = handler
+        ) {
+            if (handler.data[GlobalDatastore.username.value] != null) {
+                userAccount = handler.data[GlobalDatastore.username.value]
 
-            DoubleLazyColumn(
-                items = ArrayList(userAccount?.savedData?.toList()!!).apply {
-                    add(0, "Create New" to SavedItem())
-                },
-                onClick = { item ->
-                    if (item.second.isEmpty()) {
-                        navController.navigate("createNewPage/personal")
-                    } else if (item.second.izNotesItem) {
-                        navController.navigate("notesPage/personal/${item.second.notesItem?.notesContent}/${item.first}")
-                    } else {
-                        graphViewModel.equations = item.second.graphItem?.equations!!
-                        navController.navigate("graphPage/personal/${item.first}")
+                DoubleLazyColumn(
+                    items = ArrayList(userAccount?.savedData?.toList()!!).apply {
+                        add(0, "Create New" to SavedItem())
+                    },
+                    onClick = { item ->
+                        if (item.second.isEmpty()) {
+                            navController.navigate("createNewPage/personal")
+                        } else if (item.second.izNotesItem) {
+                            navController.navigate("notesPage/personal/${item.second.notesItem?.notesContent}/${item.first}")
+                        } else {
+                            graphViewModel.equations = item.second.graphItem?.equations!!
+                            navController.navigate("graphPage/personal/${item.first}")
+                        }
                     }
-                }
-            ) { item ->
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (item.second.isEmpty()) {
-                        Icon(
-                            painter = painterResource(R.drawable.plus),
-                            contentDescription = "New",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        )
-                    } else if (item.second.izNotesItem) {
-                        Icon(
-                            painter = painterResource(R.drawable.note),
-                            contentDescription = "Notes",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.chart_bell_curve_cumulative),
-                            contentDescription = "Graph",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
+                ) { item ->
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (item.second.isEmpty()) {
+                            Icon(
+                                painter = painterResource(R.drawable.plus),
+                                contentDescription = "New",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        } else if (item.second.izNotesItem) {
+                            Icon(
+                                painter = painterResource(R.drawable.note),
+                                contentDescription = "Notes",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.chart_bell_curve_cumulative),
+                                contentDescription = "Graph",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        }
+                        Text(
+                            text = item.first,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Text(
-                        text = item.first,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
         }

@@ -113,4 +113,11 @@
     <string name="homePage5">Sign Up</string>
     <string name="modeChoosePageTitle">What are you using this app for?</string>
     <string name="settingsPage5">Enable confetti</string>
+    <string name="createNewPage9">Name already exists!</string>
+    <string name="joinClassPage4">Class does not exist!</string>
+    <string name="signUpPage8">Password must have at least 8 characters!</string>
+    <string name="signUpPage9">Password must have at least one uppercase and lowercase letter and digit!</string>
+    <string name="signUpPage10"><![CDATA[Password must have at least 1 special character! (!@#\\$%^&*)]]></string>
+    <string name="signUpPage11">Password cannot contain spaces!</string>
+    <string name="signUpPage12">Invalid password!</string>
 </resources>

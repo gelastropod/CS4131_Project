@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
 fun JoinClassPage(navController: NavController, handler: FirestoreHandler) {
@@ -62,7 +64,20 @@ fun JoinClassPage(navController: NavController, handler: FirestoreHandler) {
             ) {
                 Button(
                     onClick = {
-                        navController.navigate("studentDashboardPage")
+                        for (item in handler.data) {
+                            if (item.value.password == className) {
+                                GlobalDatastore.currentClass.value = item.key
+
+                                handler.classData[GlobalDatastore.username.value]?.add(item.key)
+                                handler.updateDatabase()
+
+                                navController.navigate("classDashboardPage/student/${item.key}")
+
+                                return@Button
+                            }
+                        }
+
+                        Toast.makeText(context, getString(context, R.string.joinClassPage4), Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text(getString(context, R.string.joinClassPage3))

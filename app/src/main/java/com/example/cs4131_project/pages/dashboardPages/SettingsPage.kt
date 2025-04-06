@@ -107,6 +107,9 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
                                     showDialog = false
 
                                     handler.data.remove(GlobalDatastore.username.value)
+                                    for (className in handler.classData[GlobalDatastore.username.value] ?: arrayListOf()) {
+                                        handler.data.remove(className)
+                                    }
                                     handler.classData.remove(GlobalDatastore.username.value)
                                     handler.updateDatabase()
 

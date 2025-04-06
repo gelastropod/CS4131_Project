@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -33,69 +34,74 @@ fun ClassDashboardPage(navController: NavController, handler: FirestoreHandler, 
     val context = LocalContext.current
 
     var userAccount: UserAccount?
+    var done by remember{mutableStateOf(false)}
 
-    DashboardWrapper(
-        navController,
-        getString(
-            context,
-            R.string.classDashboardPageTitle
-        ) + className,
-        "class", handler = handler
-    ) {
-        if (handler.data[GlobalDatastore.username.value] != null) {
-            userAccount = handler.data[GlobalDatastore.username.value]
+    handler.updateData { done = true }
 
-            DoubleLazyColumn(
-                items = ArrayList(userAccount?.savedData?.toList()!!).apply {
-                    if (mode == "teacher") {
-                        add(0, "Create New" to SavedItem())
+    if (done) {
+        DashboardWrapper(
+            navController,
+            getString(
+                context,
+                R.string.classDashboardPageTitle
+            ) + className,
+            mode, handler = handler
+        ) {
+            if (handler.data[className] != null) {
+                userAccount = handler.data[className]
+
+                DoubleLazyColumn(
+                    items = ArrayList(userAccount?.savedData?.toList()!!).apply {
+                        if (mode == "teacher") {
+                            add(0, "Create New" to SavedItem())
+                        }
+                    },
+                    onClick = { item ->
+                        if (item.second.isEmpty()) {
+                            navController.navigate("createNewPage/$mode")
+                        } else if (item.second.izNotesItem) {
+                            navController.navigate("notesPage/$mode/${item.second.notesItem?.notesContent}/${item.first}")
+                        } else {
+                            graphViewModel.equations = item.second.graphItem?.equations!!
+                            navController.navigate("graphPage/$mode/${item.first}")
+                        }
                     }
-                },
-                onClick = { item ->
-                    if (item.second.isEmpty()) {
-                        navController.navigate("createNewPage/class")
-                    } else if (item.second.izNotesItem) {
-                        navController.navigate("notesPage/class/${item.second.notesItem?.notesContent}/${item.first}")
-                    } else {
-                        graphViewModel.equations = item.second.graphItem?.equations!!
-                        navController.navigate("graphPage/class/${item.first}")
-                    }
-                }
-            ) { item ->
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (item.second.isEmpty()) {
-                        Icon(
-                            painter = painterResource(R.drawable.plus),
-                            contentDescription = "New",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        )
-                    } else if (item.second.izNotesItem) {
-                        Icon(
-                            painter = painterResource(R.drawable.note),
-                            contentDescription = "Notes",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(R.drawable.chart_bell_curve_cumulative),
-                            contentDescription = "Graph",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
+                ) { item ->
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (item.second.isEmpty()) {
+                            Icon(
+                                painter = painterResource(R.drawable.plus),
+                                contentDescription = "New",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        } else if (item.second.izNotesItem) {
+                            Icon(
+                                painter = painterResource(R.drawable.note),
+                                contentDescription = "Notes",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.chart_bell_curve_cumulative),
+                                contentDescription = "Graph",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                        }
+                        Text(
+                            text = item.first,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    Text(
-                        text = item.first,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                 }
             }
         }

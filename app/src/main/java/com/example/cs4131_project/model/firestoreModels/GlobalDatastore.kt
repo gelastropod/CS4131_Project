@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 object GlobalDatastore {
     var sharedPreferences: SharedPreferences? = null
     var username = mutableStateOf("")
+    var currentClass = mutableStateOf("")
     var confettiEnabled = true
 
     fun updateData() {

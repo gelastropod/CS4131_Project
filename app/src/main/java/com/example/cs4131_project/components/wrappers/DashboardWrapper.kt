@@ -160,6 +160,8 @@ fun DashboardWrapper(
                     label = { Text(getString(context, R.string.dashboardWrapper8)) },
                     selected = false,
                     onClick = {
+                        GlobalDatastore.currentClass.value = ""
+
                         navController.navigate("${mode}DashboardPage")
                     },
                     shape = RectangleShape
@@ -168,6 +170,8 @@ fun DashboardWrapper(
                     label = { Text(getString(context, R.string.dashboardWrapper9)) },
                     selected = false,
                     onClick = {
+                        GlobalDatastore.currentClass.value = ""
+
                         navController.navigate("settingsPage/$mode")
                     },
                     shape = RectangleShape
@@ -177,6 +181,8 @@ fun DashboardWrapper(
                         label = { Text(getString(context, R.string.dashboardWrapper10)) },
                         selected = false,
                         onClick = {
+                            GlobalDatastore.currentClass.value = ""
+
                             navController.navigate(mode + "ClassListPage")
                         },
                         shape = RectangleShape
@@ -260,6 +266,8 @@ fun DashboardWrapper(
 
                             GlobalDatastore.username.value = ""
                             GlobalDatastore.updatePreferences()
+
+                            GlobalDatastore.currentClass.value = ""
 
                             navController.navigate("homePage")
                         }) {

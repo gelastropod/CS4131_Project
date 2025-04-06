@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,9 +39,10 @@ import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.firestoreModels.GraphItem
 import com.example.cs4131_project.model.firestoreModels.NotesItem
 import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
-fun CreateNewPage(navController: NavController, mode: String, handler: FirestoreHandler) {
+fun CreateNewPage(navController: NavController, mode: String, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
     val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(0) }
@@ -159,16 +161,23 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
             confirmButton = {
                 TextButton(
                     onClick = {
+                        val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+
+                        if (handler.data[key]?.savedData?.containsKey(name) == true) {
+                            Toast.makeText(context, getString(context, R.string.createNewPage9), Toast.LENGTH_SHORT).show()
+                            return@TextButton
+                        }
+
                         if (showDialog == 1) {
-                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, SavedItem(false, null, GraphItem()))
+                            handler.data[key]?.savedData?.set(name, SavedItem(false, null, GraphItem()))
                         }
                         else {
-                            handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, SavedItem(true, NotesItem(), null))
+                            handler.data[key]?.savedData?.set(name, SavedItem(true, NotesItem(), null))
                         }
-
-                        handler.unsaved = true
+                        handler.updateDatabase()
 
                         if (showDialog == 1) {
+                            graphViewModel.clearEquations()
                             navController.navigate("graphPage/$mode/$name")
                         }
                         else {

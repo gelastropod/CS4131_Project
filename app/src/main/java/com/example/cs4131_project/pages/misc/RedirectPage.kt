@@ -55,7 +55,8 @@ fun RedirectPage(navController: NavController, originalName: String, fileContent
                             object : TypeToken<SavedItem>() {}.type
                         )
 
-                        handler.data[GlobalDatastore.username.value]?.savedData?.set(
+                        val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                        handler.data[key]?.savedData?.set(
                             name,
                             savedItem
                         )

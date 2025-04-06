@@ -67,13 +67,19 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
 
             val textColor = MaterialTheme.colorScheme.onBackground
 
+            val mathViewRef = remember { mutableStateOf<MathView?>(null) }
+
             AndroidView(
                 factory = { context ->
                     MathView(context).apply {
-                        setDisplayText("\$f(x)=" + inputExpressionState.value + "\$")
                         setBackgroundColor(Color.TRANSPARENT)
                         setTextColor(textColor.toArgb())
+                        setDisplayText("\$f(x)=${inputExpressionState.value}\$")
+                        mathViewRef.value = this
                     }
+                },
+                update = {
+                    it.setDisplayText("\$f(x)=${inputExpressionState.value}\$")
                 }
             )
 
@@ -88,7 +94,8 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
 
                         graphViewModel.setEquation(index, inputExpressionState.value, Point(1.0, 0.5, 0.5))
 
-                        handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
+                        val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                        handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
 
                         navController.navigate("equationPage/$mode/$name")
                     }

@@ -81,7 +81,8 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
-                val savedItem = handler.data[GlobalDatastore.username.value]?.savedData?.get(originalName)!!
+                val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                val savedItem = handler.data[key]?.savedData?.get(originalName)!!
 
                 val dataToWrite = gson.toJson(savedItem)
 
@@ -132,34 +133,43 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                                 showUnsavedDialog = true
                             }
                             else {
-                                navController.navigate("${mode}DashboardPage")
+                                if (GlobalDatastore.currentClass.value.isNotEmpty())
+                                    navController.navigate("classDashboardPage/$mode/${GlobalDatastore.currentClass.value}")
+                                else
+                                    navController.navigate("${mode}DashboardPage")
                             }
                         }
                     )
-                    DropdownMenuItem(
-                        text = { Text(getString(context, R.string.contentWrapper2)) },
-                        onClick = {
-                            expandedState.value = false
+                    if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text(getString(context, R.string.contentWrapper2)) },
+                            onClick = {
+                                expandedState.value = false
 
-                            handler.save()
+                                handler.save()
 
-                            Toast.makeText(context, getString(context, R.string.contentWrapper11), Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(getString(context, R.string.contentWrapper3)) },
-                        onClick = {
-                            expandedState.value = false
-                            showDialog = true
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {Text(getString(context, R.string.contentWrapper14))},
-                        onClick = {
-                            expandedState.value = false
-                            showDeleteDialog = true
-                        }
-                    )
+                                Toast.makeText(
+                                    context,
+                                    getString(context, R.string.contentWrapper11),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(getString(context, R.string.contentWrapper3)) },
+                            onClick = {
+                                expandedState.value = false
+                                showDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(getString(context, R.string.contentWrapper14)) },
+                            onClick = {
+                                expandedState.value = false
+                                showDeleteDialog = true
+                            }
+                        )
+                    }
                     DropdownMenuItem(
                         text = {Text(getString(context, R.string.contentWrapper13))},
                         onClick = {
@@ -198,7 +208,14 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                     confirmButton = {
                         TextButton(onClick = {
                             showUnsavedDialog = false
-                            navController.navigate("${mode}DashboardPage")
+
+                            handler.unsaved = false
+                            handler.unsavedData = handler.data
+
+                            if (GlobalDatastore.currentClass.value.isNotEmpty())
+                                navController.navigate("classDashboardPage/$mode/${GlobalDatastore.currentClass.value}")
+                            else
+                                navController.navigate("${mode}DashboardPage")
                         }) {
                             Text(getString(context, R.string.dashboardWrapper3))
                         }
@@ -230,10 +247,14 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                             onClick = {
                                 showDeleteDialog = false
 
-                                handler.data[GlobalDatastore.username.value]?.savedData?.remove(originalName)
+                                val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                                handler.data[key]?.savedData?.remove(originalName)
                                 handler.updateDatabase()
 
-                                navController.navigate("${mode}DashboardPage")
+                                if (GlobalDatastore.currentClass.value.isNotEmpty())
+                                    navController.navigate("classDashboardPage/$mode/${GlobalDatastore.currentClass.value}")
+                                else
+                                    navController.navigate("${mode}DashboardPage")
                             }
                         ) {
                             Text(getString(context, R.string.contentWrapper7))
@@ -271,15 +292,25 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                showDialog = false
-                                Toast.makeText(context, getString(context, R.string.contentWrapper12), Toast.LENGTH_SHORT)
-                                    .show()
+                                handler.save()
 
                                 handler.unsaved = true
 
-                                val savedItem = handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(originalName)
-                                handler.unsavedData[GlobalDatastore.username.value]?.savedData?.remove(originalName)
-                                handler.unsavedData[GlobalDatastore.username.value]?.savedData?.set(name, savedItem!!)
+                                val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                                val savedItem = handler.data[key]?.savedData?.get(originalName)
+                                handler.unsavedData[key]?.savedData?.remove(originalName)
+
+                                if (handler.unsavedData[key]?.savedData?.containsKey(name) == true) {
+                                    Toast.makeText(context, getString(context, R.string.createNewPage9), Toast.LENGTH_SHORT).show()
+                                    handler.unsavedData[key]?.savedData?.set(originalName, savedItem!!)
+                                    return@TextButton
+                                }
+
+                                handler.unsavedData[key]?.savedData?.set(name, savedItem!!)
+
+                                Toast.makeText(context, getString(context, R.string.contentWrapper12), Toast.LENGTH_SHORT)
+                                    .show()
+                                showDialog = false
                             },
                             enabled = name.isNotBlank()
                         ) {

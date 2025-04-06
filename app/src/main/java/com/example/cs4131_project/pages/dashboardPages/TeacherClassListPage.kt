@@ -32,7 +32,16 @@ import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 fun TeacherClassListPage(navController: NavController, handler: FirestoreHandler) {
     val context = LocalContext.current
 
-    val classes = handler.classData[GlobalDatastore.username.value] ?: arrayListOf()
+    val classes = (handler.classData[GlobalDatastore.username.value] ?: arrayListOf()).apply {
+        forEach {
+            if (!handler.data.containsKey(it)) {
+                remove(it)
+            }
+        }
+    }
+
+    handler.classData[GlobalDatastore.username.value] = classes
+    handler.updateDatabase()
 
     DashboardWrapper(
         navController,

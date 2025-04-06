@@ -76,8 +76,7 @@ class MainActivity : ComponentActivity() {
         val db = FirebaseFirestore.getInstance()
         val handler = FirestoreHandler(
             db.collection("mainData").document("userData"),
-            db.collection("mainData").document("classData"),
-            db.collection("mainData").document("classIDs")
+            db.collection("mainData").document("classData")
         )
 
         sharedPreferences = applicationContext.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
@@ -197,7 +196,7 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                CreateNewPage(navController, mode, handler)
+                CreateNewPage(navController, mode, handler, graphViewModel)
             }
         }
         composable(

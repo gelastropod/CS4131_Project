@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
 fun ClassDetailsPage(navController: NavController, mode: String, handler: FirestoreHandler, className: String) {
@@ -32,7 +33,7 @@ fun ClassDetailsPage(navController: NavController, mode: String, handler: Firest
         ) {
             Button(
                 onClick = {
-                    clipboardManager.setText(AnnotatedString(handler.classIDData[className] ?: ""))
+                    clipboardManager.setText(AnnotatedString(handler.data[className]?.password ?: ""))
 
                     Toast.makeText(context, "Class ID copied to clipboard!", Toast.LENGTH_SHORT)
                         .show()
@@ -42,6 +43,8 @@ fun ClassDetailsPage(navController: NavController, mode: String, handler: Firest
             }
             Button(
                 onClick = {
+                    GlobalDatastore.currentClass.value = className
+
                     navController.navigate("classDashboardPage/$mode/$className")
                 }
             ) {

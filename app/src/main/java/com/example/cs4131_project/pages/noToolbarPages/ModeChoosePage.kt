@@ -49,6 +49,7 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                     ElevatedCard(
                         onClick = {
                             handler.data[username] = UserAccount(hashMapOf(), password, "personal")
+                            handler.classData[username] = arrayListOf()
                             handler.updateDatabase()
 
                             GlobalDatastore.username.value = username
@@ -71,6 +72,7 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                     ElevatedCard(
                         onClick = {
                             handler.data[username] = UserAccount(hashMapOf(), password, "student")
+                            handler.classData[username] = arrayListOf()
                             handler.updateDatabase()
 
                             GlobalDatastore.username.value = username
@@ -93,6 +95,7 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                 ElevatedCard(
                     onClick = {
                         handler.data[username] = UserAccount(hashMapOf(), password, "teacher")
+                        handler.classData[username] = arrayListOf()
                         handler.updateDatabase()
 
                         GlobalDatastore.username.value = username

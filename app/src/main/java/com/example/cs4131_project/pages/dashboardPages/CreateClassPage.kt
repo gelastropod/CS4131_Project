@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,9 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.UserAccount
+import java.util.UUID
 
 @Composable
 fun CreateClassPage(navController: NavController, handler: FirestoreHandler) {
@@ -62,7 +66,19 @@ fun CreateClassPage(navController: NavController, handler: FirestoreHandler) {
             ) {
                 Button(
                     onClick = {
-                        navController.navigate("teacherDashboardPage")
+                        if (handler.data.containsKey(className)) {
+                            Toast.makeText(context, getString(context, R.string.contentWrapper12), Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        val randomId = UUID.randomUUID().toString()
+                        handler.data[className] = UserAccount(hashMapOf(), randomId, "class")
+                        handler.classData[GlobalDatastore.username.value]?.add(className)
+                        handler.updateDatabase()
+
+                        GlobalDatastore.currentClass.value = className
+
+                        navController.navigate("classDashboardPage/teacher/$className")
                     }
                 ) {
                     Text(getString(context, R.string.createClassPage3))

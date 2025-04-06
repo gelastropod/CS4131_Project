@@ -1,6 +1,7 @@
 package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.drawable.Icon
+import android.provider.Settings.Global
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -48,20 +49,22 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
         handler = handler,
         originalName = name,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    isReading = !isReading
+            if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                FloatingActionButton(
+                    onClick = {
+                        isReading = !isReading
+                    }
+                ) {
+                    Icon(
+                        painterResource(
+                            if (isReading)
+                                R.drawable.pencil
+                            else
+                                R.drawable.eye,
+                        ),
+                        contentDescription = "Thingy"
+                    )
                 }
-            ) {
-                Icon(
-                     painterResource(
-                        if (isReading)
-                            R.drawable.pencil
-                        else
-                            R.drawable.eye,
-                    ),
-                    contentDescription = "Thingy"
-                )
             }
         }
     ) {
@@ -73,8 +76,8 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
 
                     handler.unsaved = true
 
-                    handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(name)?.notesItem?.notesContent =
-                        it
+                    val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                    handler.unsavedData[key]?.savedData?.get(name)?.notesItem?.notesContent = it
                 },
                 modifier = Modifier.fillMaxSize(),
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Default),
