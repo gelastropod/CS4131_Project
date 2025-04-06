@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
-fun NoToolbarWrapper(navController: NavController, title: String, content: @Composable () -> Unit) {
+fun NoToolbarWrapper(navController: NavController, title: String, headerSize: Int = 150, content: @Composable () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,7 +26,7 @@ fun NoToolbarWrapper(navController: NavController, title: String, content: @Comp
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp),
+                .height(headerSize.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(

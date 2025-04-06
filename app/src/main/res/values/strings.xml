@@ -10,7 +10,7 @@
     <string name="onboarding2_2_4">: Visualize equations dynamically with our interactive graphing tool.</string>
     <string name="onboarding2_2_5">Join Classes</string>
     <string name="onboarding2_2_6">: Connect with teachers, access shared materials, and collaborate with classmates.</string>
-    <string name="homePageTitle">What are you using this app for?</string>
+    <string name="homePageTitle">Welcome to Graphium!</string>
     <string name="homePage1">Personal</string>
     <string name="homePage2">Student</string>
     <string name="homePage3">Teacher</string>
@@ -38,8 +38,8 @@
     <string name="teacherPromptPage4">Later</string>
     <string name="personalDashboardPageTitle">Welcome\ </string>
     <string name="studentDashboardPageTitle">Welcome\ </string>
-    <string name="teacherDashboardPageTitle">Welcome [username]!\nViewing [class name]</string>
-    <string name="classDashboardPageTitle">Class [class name]</string>
+    <string name="teacherDashboardPageTitle">Welcome\ </string>
+    <string name="classDashboardPageTitle">Class\ </string>
     <string name="studentClassListPageTitle">Your classes</string>
     <string name="studentClassListPage1">Join class</string>
     <string name="teacherClassListPageTitle">Your classes</string>
@@ -94,7 +94,7 @@
     <string name="signUpPage6">Password and confirm password are different!</string>
     <string name="signUpPage7">Confirm password...</string>
     <string name="settingsPage1">Toggle light/dark mode</string>
-    <string name="settingsPage2">Toggle dynamic theme</string>
+    <string name="settingsPage2">Reset data (Irreversible!)</string>
     <string name="dashboardWrapper7">Graphium</string>
     <string name="dashboardWrapper8">Dashboard</string>
     <string name="dashboardWrapper9">Settings</string>
@@ -104,4 +104,13 @@
     <string name="dashboardWrapper13">Export...</string>
     <string name="dashboardWrapper14">Error loading file</string>
     <string name="contentWrapper13">Export...</string>
+    <string name="contentWrapper14">Delete</string>
+    <string name="contentWrapper15">Delete item</string>
+    <string name="contentWrapper16">Are you sure you want to delete this item? This action cannot be reverted!</string>
+    <string name="settingsPage3">Reset user data</string>
+    <string name="settingsPage4">Are you sure you want to reset all user data? This action is irreversible!</string>
+    <string name="homePage4">Sign In</string>
+    <string name="homePage5">Sign Up</string>
+    <string name="modeChoosePageTitle">What are you using this app for?</string>
+    <string name="settingsPage5">Enable confetti</string>
 </resources>

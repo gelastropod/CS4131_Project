@@ -41,7 +41,7 @@ import com.example.cs4131_project.model.firestoreModels.SavedItem
 import com.example.cs4131_project.model.firestoreModels.UserAccount
 
 @Composable
-fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHandler) {
+fun SignUpPage(navController: NavController, handler: FirestoreHandler) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -137,25 +137,7 @@ fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHan
                         return@Button
                     }
 
-                    handler.data[username] = UserAccount(hashMapOf(), password)
-                    handler.updateDatabase()
-
-                    GlobalDatastore.username.value = username
-                    GlobalDatastore.updatePreferences()
-
-                    when (mode) {
-                        "personal" -> {
-                            navController.navigate("personalDashboardPage")
-                        }
-
-                        "student" -> {
-                            navController.navigate("studentPromptPage")
-                        }
-
-                        "teacher" -> {
-                            navController.navigate("teacherPromptPage")
-                        }
-                    }
+                    navController.navigate("modeChoosePage/$username/$password")
                 }
             ) {
                 Text(getString(context, R.string.signUpPage3))
@@ -184,7 +166,7 @@ fun SignUpPage(navController: NavController, mode: String, handler: FirestoreHan
                     pop()
                 },
                 onClick = {
-                    navController.navigate("signInPage/$mode")
+                    navController.navigate("signInPage")
                 }
             )
         }

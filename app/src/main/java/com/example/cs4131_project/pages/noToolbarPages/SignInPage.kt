@@ -39,7 +39,7 @@ import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
-fun SignInPage(navController: NavController, mode: String, handler: FirestoreHandler) {
+fun SignInPage(navController: NavController, handler: FirestoreHandler) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -93,7 +93,7 @@ fun SignInPage(navController: NavController, mode: String, handler: FirestoreHan
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
-                    if (!handler.data.containsKey(username)) {
+                    if (!handler.data.containsKey(username) || handler.data[username]?.usage == "class") {
                         Toast.makeText(context, getString(context, R.string.signInPage5), Toast.LENGTH_SHORT).show()
                         return@Button
                     }
@@ -106,17 +106,17 @@ fun SignInPage(navController: NavController, mode: String, handler: FirestoreHan
                     GlobalDatastore.username.value = username
                     GlobalDatastore.updatePreferences()
 
-                    when (mode) {
+                    when (handler.data[username]?.usage) {
                         "personal" -> {
                             navController.navigate("personalDashboardPage")
                         }
 
                         "student" -> {
-                            navController.navigate("studentPromptPage")
+                            navController.navigate("studentDashboardPage")
                         }
 
                         "teacher" -> {
-                            navController.navigate("teacherPromptPage")
+                            navController.navigate("teacherDashboardPage")
                         }
                     }
                 }
@@ -147,7 +147,7 @@ fun SignInPage(navController: NavController, mode: String, handler: FirestoreHan
                     pop()
                 },
                 onClick = {
-                    navController.navigate("signUpPage/$mode")
+                    navController.navigate("signUpPage")
                 }
             )
         }

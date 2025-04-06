@@ -41,17 +41,17 @@ import com.example.cs4131_project.pages.dashboardPages.StudentClassListPage
 import com.example.cs4131_project.pages.noToolbarPages.HomePage
 import com.example.cs4131_project.pages.dashboardPages.JoinClassPage
 import com.example.cs4131_project.pages.contentPages.NotesPage
-import com.example.cs4131_project.pages.Onboarding
+import com.example.cs4131_project.pages.misc.Onboarding
 import com.example.cs4131_project.pages.contentPages.EquationEditorPage
 import com.example.cs4131_project.pages.dashboardPages.PersonalDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.SettingsPage
 import com.example.cs4131_project.pages.noToolbarPages.SignInPage
 import com.example.cs4131_project.pages.noToolbarPages.SignUpPage
 import com.example.cs4131_project.pages.dashboardPages.StudentDashboardPage
-import com.example.cs4131_project.pages.noToolbarPages.StudentPromptPage
 import com.example.cs4131_project.pages.dashboardPages.TeacherClassListPage
 import com.example.cs4131_project.pages.dashboardPages.TeacherDashboardPage
-import com.example.cs4131_project.pages.noToolbarPages.TeacherPromptPage
+import com.example.cs4131_project.pages.misc.RedirectPage
+import com.example.cs4131_project.pages.noToolbarPages.ModeChoosePage
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
@@ -74,7 +74,11 @@ class MainActivity : ComponentActivity() {
         enableImmersiveMode()
 
         val db = FirebaseFirestore.getInstance()
-        val handler = FirestoreHandler(db.collection("mainData").document("userData"))
+        val handler = FirestoreHandler(
+            db.collection("mainData").document("userData"),
+            db.collection("mainData").document("classData"),
+            db.collection("mainData").document("classIDs")
+        )
 
         sharedPreferences = applicationContext.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
         GlobalDatastore.sharedPreferences = sharedPreferences
@@ -117,7 +121,15 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
         navController = navController,
         startDestination = if (showOnboarding) "onboardingPage" else {
             if (GlobalDatastore.username.value.isEmpty()) "homePage"
-            else "personalDashboardPage"
+            else {
+                val userAccount = handler.data[GlobalDatastore.username.value]
+                if (userAccount != null) {
+                    userAccount.usage + "DashboardPage"
+                }
+                else {
+                    "homePage"
+                }
+            }
         },
         modifier = Modifier
             .pointerInput(Unit) {
@@ -131,59 +143,41 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
     ) {
         composable("onboardingPage") { Onboarding(navController, MainActivity.sharedPreferences) }
         composable("homePage") { HomePage(navController) }
-        composable(
-            "signInPage/{mode}",
-            arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
-            )
-        ) { backStackEntry ->
-            val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                SignInPage(navController, mode, handler)
-            }
-        }
-        composable(
-            "signUpPage/{mode}",
-            arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
-            )
-        ) { backStackEntry ->
-            val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                SignUpPage(navController, mode, handler)
-            }
-        }
-        composable("studentPromptPage") {StudentPromptPage(navController)}
-        composable("teacherPromptPage") {TeacherPromptPage(navController)}
+        composable("signInPage") { SignInPage(navController, handler) }
+        composable("signUpPage") { SignUpPage(navController, handler) }
         composable("personalDashboardPage") { PersonalDashboardPage(navController, handler, graphViewModel)}
         composable("studentDashboardPage") { StudentDashboardPage(navController, handler, graphViewModel)}
         composable("teacherDashboardPage") { TeacherDashboardPage(navController, handler, graphViewModel)}
         composable(
-            "classDashboardPage/{mode}",
+            "classDashboardPage/{mode}/{className}",
             arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("className") {type = NavType.StringType}
             )
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                ClassDashboardPage(navController, mode)
+            val className = backStackEntry.arguments?.getString("className")
+            if (mode != null && className != null) {
+                ClassDashboardPage(navController, handler, graphViewModel, mode, className)
             }
         }
-        composable("studentClassListPage") { StudentClassListPage(navController) }
-        composable("teacherClassListPage") { TeacherClassListPage(navController) }
+        composable("studentClassListPage") { StudentClassListPage(navController, handler) }
+        composable("teacherClassListPage") { TeacherClassListPage(navController, handler) }
         composable(
-            "classDetailsPage/{mode}",
+            "classDetailsPage/{mode}/{className}",
             arguments = listOf(
-                navArgument("mode") {type = NavType.StringType}
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("className") {type = NavType.StringType}
             )
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
-            if (mode != null) {
-                ClassDetailsPage(navController, mode)
+            val className = backStackEntry.arguments?.getString("className")
+            if (mode != null && className != null) {
+                ClassDetailsPage(navController, mode, handler, className)
             }
         }
-        composable("joinClassPage") {JoinClassPage(navController)}
-        composable("createClassPage") {CreateClassPage(navController)}
+        composable("joinClassPage") {JoinClassPage(navController, handler)}
+        composable("createClassPage") {CreateClassPage(navController, handler)}
         composable(
             "settingsPage/{mode}",
             arguments = listOf(
@@ -192,7 +186,7 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
-                SettingsPage(navController, mode)
+                SettingsPage(navController, mode, handler)
             }
         }
         composable(
@@ -260,6 +254,32 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
             val name = backStackEntry.arguments?.getString("name")
             if (mode != null && index != null && name != null) {
                 EquationEditorPage(navController, mode, index.toInt(), graphViewModel, handler, name)
+            }
+        }
+        composable(
+            "redirectPage/{fileName}/{fileContent}",
+            arguments = listOf(
+                navArgument("fileName") {type = NavType.StringType},
+                navArgument("fileContent") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val fileName = backStackEntry.arguments?.getString("fileName")
+            val fileContent = backStackEntry.arguments?.getString("fileContent")
+            if (fileName != null && fileContent != null) {
+                RedirectPage(navController, fileName, fileContent, handler)
+            }
+        }
+        composable(
+            "modeChoosePage/{username}/{password}",
+            arguments = listOf(
+                navArgument("username") {type = NavType.StringType},
+                navArgument("password") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username")
+            val password = backStackEntry.arguments?.getString("password")
+            if (username != null && password != null) {
+                ModeChoosePage(navController, handler, username, password)
             }
         }
     }

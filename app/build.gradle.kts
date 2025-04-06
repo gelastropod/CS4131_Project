@@ -66,4 +66,6 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.gson)
     implementation("in.hourglass.mathrender:katexmathview:1.0.3")
+    implementation(libs.compose.markdown.v034)
+    implementation(libs.konfetti.compose)
 }

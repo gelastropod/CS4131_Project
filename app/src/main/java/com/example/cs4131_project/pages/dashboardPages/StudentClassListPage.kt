@@ -25,17 +25,19 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 
 @Composable
-fun StudentClassListPage(navController: NavController) {
+fun StudentClassListPage(navController: NavController, handler: FirestoreHandler) {
     val context = LocalContext.current
 
-    val classes = arrayListOf("class1", "test1")
+    val classes = handler.classData[GlobalDatastore.username.value] ?: arrayListOf()
 
     DashboardWrapper(
         navController,
         getString(context, R.string.studentClassListPageTitle),
-        "student"
+        "student", handler = handler
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -60,7 +62,7 @@ fun StudentClassListPage(navController: NavController) {
                         .fillMaxWidth()
                         .height(200.dp),
                     onClick = {
-                        navController.navigate("classDetailsPage/student")
+                        navController.navigate("classDetailsPage/student/$className")
                     }
                 ) {
                     Column(

@@ -9,18 +9,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 
 @Composable
-fun ClassDetailsPage(navController: NavController, mode: String) {
+fun ClassDetailsPage(navController: NavController, mode: String, handler: FirestoreHandler, className: String) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
-    DashboardWrapper(navController, getString(context, R.string.classDetailsPageTitle), mode) {
+    DashboardWrapper(navController, className, mode, handler = handler) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -28,6 +32,8 @@ fun ClassDetailsPage(navController: NavController, mode: String) {
         ) {
             Button(
                 onClick = {
+                    clipboardManager.setText(AnnotatedString(handler.classIDData[className] ?: ""))
+
                     Toast.makeText(context, "Class ID copied to clipboard!", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -36,7 +42,7 @@ fun ClassDetailsPage(navController: NavController, mode: String) {
             }
             Button(
                 onClick = {
-                    navController.navigate("classDashboardPage/$mode")
+                    navController.navigate("classDashboardPage/$mode/$className")
                 }
             ) {
                 Text("Show class resources")

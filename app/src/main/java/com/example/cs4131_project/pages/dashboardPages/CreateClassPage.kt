@@ -26,13 +26,14 @@ import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 
 @Composable
-fun CreateClassPage(navController: NavController) {
+fun CreateClassPage(navController: NavController, handler: FirestoreHandler) {
     val context = LocalContext.current
     var className by remember { mutableStateOf("") }
 
-    DashboardWrapper(navController, getString(context, R.string.createClassPageTitle), "teacher") {
+    DashboardWrapper(navController, getString(context, R.string.createClassPageTitle), "teacher", handler = handler) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

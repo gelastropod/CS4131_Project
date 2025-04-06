@@ -45,7 +45,7 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
     var name by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(0) }
 
-    DashboardWrapper(navController, getString(context, R.string.createNewPageTitle), mode) {
+    DashboardWrapper(navController, getString(context, R.string.createNewPageTitle), mode, handler = handler) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)

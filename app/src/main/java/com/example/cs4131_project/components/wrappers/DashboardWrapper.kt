@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
@@ -119,7 +122,7 @@ fun DashboardWrapper(
     navController: NavController,
     title: String,
     mode: String,
-    handler: FirestoreHandler? = null,
+    handler: FirestoreHandler,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -135,20 +138,9 @@ fun DashboardWrapper(
             val uri: Uri? = result.data?.data
             uri?.let {
                 val fileContent = readFileContent(context, it)
+                val fileName = getFileName(context, it)
 
-                try {
-                    val savedItem: SavedItem = gson.fromJson(
-                        fileContent,
-                        object : TypeToken<SavedItem>() {}.type
-                    )
-                    val fileName = getFileName(context, it)
-
-                    handler!!.data[GlobalDatastore.username.value]?.savedData?.set(fileName, savedItem)
-                    handler.updateDatabase()
-                }
-                catch (e: Exception) {
-                    Toast.makeText(context, getString(context, R.string.dashboardWrapper14), Toast.LENGTH_SHORT).show()
-                }
+                navController.navigate("redirectPage/$fileName/$fileContent")
             }
         }
     }
@@ -206,6 +198,10 @@ fun DashboardWrapper(
                             type = "*/*"
                         }
                         importFilePickerLauncher.launch(intent)
+
+                        scope.launch {
+                            drawerState.close()
+                        }
                     },
                     shape = RectangleShape
                 )

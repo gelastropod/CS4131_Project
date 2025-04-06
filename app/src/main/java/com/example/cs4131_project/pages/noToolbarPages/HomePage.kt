@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
@@ -26,67 +30,31 @@ import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 fun HomePage(navController: NavController) {
     val context = LocalContext.current
 
-    NoToolbarWrapper(navController, getString(context, R.string.homePageTitle)) {
+    NoToolbarWrapper(navController, getString(context, R.string.homePageTitle), headerSize = 300) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(10.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
+                Button(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ElevatedCard(
-                        onClick = {
-                            navController.navigate("signInPage/personal")
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier.size(150.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = getString(context, R.string.homePage1),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(20.dp))
-                    ElevatedCard(
-                        onClick = {
-                            navController.navigate("signInPage/student")
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier.size(150.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = getString(context, R.string.homePage2),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-                    }
-                }
-                ElevatedCard(
                     onClick = {
-                        navController.navigate("signInPage/teacher")
+                        navController.navigate("signInPage")
                     }
                 ) {
-                    Box(
-                        modifier = Modifier.size(150.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = getString(context, R.string.homePage3),
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                    Text(getString(context, R.string.homePage4))
+                }
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        navController.navigate("signUpPage")
                     }
+                ) {
+                    Text(getString(context, R.string.homePage5))
                 }
             }
         }

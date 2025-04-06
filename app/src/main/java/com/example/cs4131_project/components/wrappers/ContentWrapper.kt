@@ -71,6 +71,7 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var showUnsavedDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf(originalName) }
     val gson = Gson()
 
@@ -153,6 +154,13 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         }
                     )
                     DropdownMenuItem(
+                        text = {Text(getString(context, R.string.contentWrapper14))},
+                        onClick = {
+                            expandedState.value = false
+                            showDeleteDialog = true
+                        }
+                    )
+                    DropdownMenuItem(
                         text = {Text(getString(context, R.string.contentWrapper13))},
                         onClick = {
                             expandedState.value = false
@@ -200,6 +208,42 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                             showUnsavedDialog = false
                         }) {
                             Text(getString(context, R.string.dashboardWrapper4))
+                        }
+                    },
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true
+                    )
+                )
+            }
+            if (showDeleteDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = false },
+                    title = { Text(text = getString(context, R.string.contentWrapper15)) },
+                    text = {
+                        Column {
+                            Text(text = getString(context, R.string.contentWrapper16))
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteDialog = false
+
+                                handler.data[GlobalDatastore.username.value]?.savedData?.remove(originalName)
+                                handler.updateDatabase()
+
+                                navController.navigate("${mode}DashboardPage")
+                            }
+                        ) {
+                            Text(getString(context, R.string.contentWrapper7))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showDeleteDialog = false
+                        }) {
+                            Text(getString(context, R.string.contentWrapper8))
                         }
                     },
                     properties = DialogProperties(

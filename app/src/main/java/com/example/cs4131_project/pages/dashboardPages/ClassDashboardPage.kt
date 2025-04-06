@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.dashboardPages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -16,34 +21,59 @@ import androidx.navigation.NavController
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.components.utility.DoubleLazyColumn
+import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
+import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.firestoreModels.UserAccount
+import com.example.cs4131_project.model.graph.GraphViewModel
+import com.google.gson.Gson
 
 @Composable
-fun ClassDashboardPage(navController: NavController, mode: String) {
+fun ClassDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel, mode: String, className: String) {
     val context = LocalContext.current
 
-    DashboardWrapper(navController, getString(context, R.string.classDashboardPageTitle), mode) {
-        DoubleLazyColumn(
-            items = arrayListOf(
-                Pair("notes", "test1"),
-                Pair("graph", "test2")
-            ),
-            onClick = { item ->
-                when (item.first) {
-                    "notes" -> {
-                        navController.navigate("notesPage/personal")
-                    }
+    var userAccount: UserAccount?
 
-                    "graph" -> {
-                        navController.navigate("graphPage/personal")
+    DashboardWrapper(
+        navController,
+        getString(
+            context,
+            R.string.classDashboardPageTitle
+        ) + className,
+        "class", handler = handler
+    ) {
+        if (handler.data[GlobalDatastore.username.value] != null) {
+            userAccount = handler.data[GlobalDatastore.username.value]
+
+            DoubleLazyColumn(
+                items = ArrayList(userAccount?.savedData?.toList()!!).apply {
+                    if (mode == "teacher") {
+                        add(0, "Create New" to SavedItem())
+                    }
+                },
+                onClick = { item ->
+                    if (item.second.isEmpty()) {
+                        navController.navigate("createNewPage/class")
+                    } else if (item.second.izNotesItem) {
+                        navController.navigate("notesPage/class/${item.second.notesItem?.notesContent}/${item.first}")
+                    } else {
+                        graphViewModel.equations = item.second.graphItem?.equations!!
+                        navController.navigate("graphPage/class/${item.first}")
                     }
                 }
-            }
-        ) { item ->
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when (item.first) {
-                    "notes" -> {
+            ) { item ->
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (item.second.isEmpty()) {
+                        Icon(
+                            painter = painterResource(R.drawable.plus),
+                            contentDescription = "New",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        )
+                    } else if (item.second.izNotesItem) {
                         Icon(
                             painter = painterResource(R.drawable.note),
                             contentDescription = "Notes",
@@ -51,9 +81,7 @@ fun ClassDashboardPage(navController: NavController, mode: String) {
                                 .fillMaxWidth()
                                 .weight(1f)
                         )
-                    }
-
-                    "graph" -> {
+                    } else {
                         Icon(
                             painter = painterResource(R.drawable.chart_bell_curve_cumulative),
                             contentDescription = "Graph",
@@ -62,13 +90,13 @@ fun ClassDashboardPage(navController: NavController, mode: String) {
                                 .weight(1f)
                         )
                     }
+                    Text(
+                        text = item.first,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-                Text(
-                    text = item.second,
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
