@@ -75,6 +75,8 @@ class FirestoreHandler(private val documentReference: DocumentReference, private
                 Log.e("Firestore", "Error updating database: ${it.message}")
             }
 
+        classData.remove("")
+
         classDocumentReference.set(classData)
             .addOnSuccessListener {
                 Log.i("Firestore", "Database updated successfully")

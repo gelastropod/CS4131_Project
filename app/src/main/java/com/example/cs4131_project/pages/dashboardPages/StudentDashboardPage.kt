@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +30,8 @@ import com.example.cs4131_project.model.firestoreModels.SavedItem
 import com.example.cs4131_project.model.firestoreModels.UserAccount
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.core.Angle
 import nl.dionsegijn.konfetti.core.Party
@@ -39,6 +42,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var userAccount: UserAccount?
     var done by remember{mutableStateOf(false)}
@@ -46,7 +50,14 @@ fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler
     handler.updateData { done = true }
 
     if (done) {
-        if (GlobalDatastore.confettiEnabled) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                delay(300)
+                GlobalDatastore.confettiShown = true
+            }
+        }
+
+        if (GlobalDatastore.confettiEnabled && !GlobalDatastore.confettiShown) {
             KonfettiView(
                 modifier = Modifier.fillMaxSize().zIndex(1f),
                 parties = listOf(

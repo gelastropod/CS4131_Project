@@ -67,7 +67,7 @@ fun CreateClassPage(navController: NavController, handler: FirestoreHandler) {
                 Button(
                     onClick = {
                         if (handler.data.containsKey(className)) {
-                            Toast.makeText(context, getString(context, R.string.contentWrapper12), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(context, R.string.createClassPage4), Toast.LENGTH_SHORT).show()
                             return@Button
                         }
 

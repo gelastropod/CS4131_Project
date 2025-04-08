@@ -130,6 +130,7 @@ fun DashboardWrapper(
     val context = LocalContext.current
     var showLogOutDialog by remember { mutableStateOf(false) }
     val gson = Gson()
+    val route = navController.currentBackStackEntry?.destination?.route ?: ""
 
     val importFilePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -146,6 +147,7 @@ fun DashboardWrapper(
     }
 
     ModalNavigationDrawer(
+        gesturesEnabled = GlobalDatastore.gesturesEnabled.value,
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
@@ -162,7 +164,8 @@ fun DashboardWrapper(
                     onClick = {
                         GlobalDatastore.currentClass.value = ""
 
-                        navController.navigate("${mode}DashboardPage")
+                        if (!route.startsWith("${mode}DashboardPage"))
+                            navController.navigate("${mode}DashboardPage")
                     },
                     shape = RectangleShape
                 )
@@ -172,7 +175,8 @@ fun DashboardWrapper(
                     onClick = {
                         GlobalDatastore.currentClass.value = ""
 
-                        navController.navigate("settingsPage/$mode")
+                        if (!route.startsWith("settingsPage"))
+                            navController.navigate("settingsPage/$mode")
                     },
                     shape = RectangleShape
                 )
@@ -183,7 +187,8 @@ fun DashboardWrapper(
                         onClick = {
                             GlobalDatastore.currentClass.value = ""
 
-                            navController.navigate(mode + "ClassListPage")
+                            if (!route.startsWith("${mode}ClassListPage"))
+                                navController.navigate(mode + "ClassListPage")
                         },
                         shape = RectangleShape
                     )
@@ -211,19 +216,29 @@ fun DashboardWrapper(
                     },
                     shape = RectangleShape
                 )
+                NavigationDrawerItem(
+                    label = {Text(getString(context, R.string.dashboardWrapper15))},
+                    selected = false,
+                    onClick = {
+                        GlobalDatastore.currentClass.value = ""
+
+                        if (!route.startsWith("informationPage"))
+                            navController.navigate("informationPage/$mode")
+                    },
+                    shape = RectangleShape
+                )
             }
         }
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
-                    .padding(10.dp),
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
@@ -250,7 +265,7 @@ fun DashboardWrapper(
             }
             HorizontalDivider()
             Box(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 content()
@@ -268,6 +283,7 @@ fun DashboardWrapper(
                             GlobalDatastore.updatePreferences()
 
                             GlobalDatastore.currentClass.value = ""
+                            GlobalDatastore.confettiShown = false
 
                             navController.navigate("homePage")
                         }) {

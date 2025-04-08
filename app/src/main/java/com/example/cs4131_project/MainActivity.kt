@@ -43,6 +43,7 @@ import com.example.cs4131_project.pages.dashboardPages.JoinClassPage
 import com.example.cs4131_project.pages.contentPages.NotesPage
 import com.example.cs4131_project.pages.misc.Onboarding
 import com.example.cs4131_project.pages.contentPages.EquationEditorPage
+import com.example.cs4131_project.pages.dashboardPages.InformationPage
 import com.example.cs4131_project.pages.dashboardPages.PersonalDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.SettingsPage
 import com.example.cs4131_project.pages.noToolbarPages.SignInPage
@@ -279,6 +280,17 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
             val password = backStackEntry.arguments?.getString("password")
             if (username != null && password != null) {
                 ModeChoosePage(navController, handler, username, password)
+            }
+        }
+        composable(
+            "informationPage/{mode}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType}
+            )
+        ) {backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            if (mode != null) {
+                InformationPage(navController, mode, handler)
             }
         }
     }

@@ -120,4 +120,63 @@
     <string name="signUpPage10"><![CDATA[Password must have at least 1 special character! (!@#\\$%^&*)]]></string>
     <string name="signUpPage11">Password cannot contain spaces!</string>
     <string name="signUpPage12">Invalid password!</string>
+    <string name="informationPageTitle">About this app</string>
+    <string name="dashboardWrapper15">About this app</string>
+    <string name="informationPage1">
+        # Graphium\ \ \n
+        \ \ \n
+        Your all-in-one math companion — take notes, plot graphs, and connect with your class in one powerful app.\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        ## About This App\ \ \n
+        \ \ \n
+        **Graphium** is a modern educational app designed for students and teachers to make learning and teaching math more interactive and efficient. Whether you\'re sketching 2D curves or modeling 3D functions, Graphium makes graphing intuitive and beautiful.\ \ \n
+        \ \ \n
+        With a seamless note-taking interface, integrated graphing tools, and class-sharing features, Graphium empowers users to explore mathematical concepts in a more visual and organized way.\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        ## Features\ \ \n
+        \ \ \n
+        ### Create and Organize Notes\ \ \n
+        - Write, edit, and format math notes\ \ \n
+        - Add equations, explanations, and graph references\ \ \n
+        - Organize notes by folders or tags for quick access\ \ \n
+        \ \ \n
+        ### Interactive Graphing Tools\ \ \n
+        - Plot **2D graphs** with ease (lines, curves, inequalities, etc.)\ \ \n
+        - Dive into **3D graphs** with rotation and zoom\ \ \n
+        - Customize graph appearance: color, scale, labels\ \ \n
+        \ \ \n
+        ### Edit and Save Graphs\ \ \n
+        - Modify existing graphs anytime\ \ \n
+        - Attach graphs directly to notes\ \ \n
+        - Save and reuse graph templates\ \ \n
+        \ \ \n
+        ### Teacher Accounts and Classrooms\ \ \n
+        - Create a **teacher account** to manage classes\ \ \n
+        - Share notes and graphs with students\ \ \n
+        - Materials are **view-only** for students to ensure consistency\ \ \n
+        - Great for homework help, exam prep, or in-class activities\ \ \n
+        \ \ \n
+        ### Student Mode\ \ \n
+        - Join classes with a code\ \ \n
+        - View shared content anytime\ \ \n
+        - Keep personal notes and graphs separate from class materials\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        Graphium is perfect for high school and college students, tutors, and educators who want to bring clarity and interactivity to math education.\ \ \n
+        \ \ \n
+        ## Credits\ \ \n
+        Graphium was created by the amazing person known as gelastropod as his CS4131 Android App Development Project.\ \ \n
+    </string>
+    <string name="informationPage2">
+        \ \ \n
+        \ \ \n
+        uwu :3
+    </string>
+    <string name="settingsPage6">Enable opening sidebar when\nswiping right</string>
+    <string name="createClassPage4">Name already exists!</string>
 </resources>

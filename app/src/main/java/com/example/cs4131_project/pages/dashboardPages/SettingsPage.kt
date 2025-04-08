@@ -42,6 +42,7 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
     val context = LocalContext.current
     var showDialog by remember{mutableStateOf(false)}
     var confettiEnabled by remember{ mutableStateOf(GlobalDatastore.confettiEnabled)}
+    var gesturesEnabled by remember{ mutableStateOf(GlobalDatastore.gesturesEnabled.value)}
 
     DashboardWrapper(navController, getString(context, R.string.settingsPageTitle), mode, handler = handler) {
         LazyColumn(
@@ -50,7 +51,7 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
         ) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(35.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(getString(context, R.string.settingsPage1))
@@ -63,7 +64,7 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
             }
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(35.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(getString(context, R.string.settingsPage5))
@@ -73,6 +74,23 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
                         onCheckedChange = {
                             confettiEnabled = it
                             GlobalDatastore.confettiEnabled = it
+                            GlobalDatastore.updatePreferences()
+                        }
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(getString(context, R.string.settingsPage6))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = gesturesEnabled,
+                        onCheckedChange = {
+                            gesturesEnabled = it
+                            GlobalDatastore.gesturesEnabled.value = it
                             GlobalDatastore.updatePreferences()
                         }
                     )

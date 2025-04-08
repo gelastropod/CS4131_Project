@@ -69,7 +69,7 @@ fun TeacherClassListPage(navController: NavController, handler: FirestoreHandler
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .height(230.dp),
                     onClick = {
                         navController.navigate("classDetailsPage/teacher/$className")
                     }
