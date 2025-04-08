@@ -28,6 +28,10 @@ data class Point(val x: Double, val y: Double, val z: Double) {
         return this * (1f / scalar)
     }
 
+    operator fun div(other: Point): Point {
+        return Point(x / other.x, y / other.y, z / other.z)
+    }
+
     operator fun times(other: Point): Double {
         return x * other.x + y * other.y + z * other.z
     }

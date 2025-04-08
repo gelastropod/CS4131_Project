@@ -31,7 +31,9 @@ import androidx.navigation.navArgument
 import com.example.compose.AppTheme
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.graph.GraphViewModel
+import com.example.cs4131_project.pages.contentPages.EquationEditor3Page
 import com.example.cs4131_project.pages.dashboardPages.ClassDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.ClassDetailsPage
 import com.example.cs4131_project.pages.dashboardPages.CreateClassPage
@@ -44,6 +46,7 @@ import com.example.cs4131_project.pages.dashboardPages.JoinClassPage
 import com.example.cs4131_project.pages.contentPages.NotesPage
 import com.example.cs4131_project.pages.misc.Onboarding
 import com.example.cs4131_project.pages.contentPages.EquationEditorPage
+import com.example.cs4131_project.pages.contentPages.Graph3Page
 import com.example.cs4131_project.pages.dashboardPages.InformationPage
 import com.example.cs4131_project.pages.dashboardPages.PersonalDashboardPage
 import com.example.cs4131_project.pages.dashboardPages.SettingsPage
@@ -122,6 +125,7 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
     val focusManager = LocalFocusManager.current
     var showOnboarding by remember {mutableStateOf(MainActivity.sharedPreferences.getBoolean("showOnboarding", true))}
     val graphViewModel: GraphViewModel = viewModel()
+    val graph3ViewModel: Graph3ViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -297,6 +301,32 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
             val mode = backStackEntry.arguments?.getString("mode")
             if (mode != null) {
                 InformationPage(navController, mode, handler)
+            }
+        }
+        composable(
+            "graph3Page/{mode}/{name}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && name != null) {
+                Graph3Page(navController, mode, graph3ViewModel, handler, name)
+            }
+        }
+        composable(
+            "equationEditor3Page/{mode}/{index}",
+            arguments = listOf(
+                navArgument("mode") {type = NavType.StringType},
+                navArgument("name") {type = NavType.StringType}
+            )
+        ) {backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode")
+            val name = backStackEntry.arguments?.getString("name")
+            if (mode != null && name != null) {
+                EquationEditor3Page(navController, mode, graph3ViewModel, handler, name)
             }
         }
     }
