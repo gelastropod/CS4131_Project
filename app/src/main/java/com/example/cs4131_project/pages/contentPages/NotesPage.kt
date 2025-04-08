@@ -2,17 +2,20 @@ package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.drawable.Icon
 import android.provider.Settings.Global
+import android.view.MenuItem
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,24 +51,15 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
         mode = mode,
         handler = handler,
         originalName = name,
-        floatingActionButton = {
-            if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
-                FloatingActionButton(
-                    onClick = {
-                        isReading = !isReading
-                    }
-                ) {
-                    Icon(
-                        painterResource(
-                            if (isReading)
-                                R.drawable.pencil
-                            else
-                                R.drawable.eye,
-                        ),
-                        contentDescription = "Thingy"
-                    )
+        menuItems = { expandedState ->
+            DropdownMenuItem(
+                text = { Text(getString(context, R.string.notesPage1)) },
+                onClick = {
+                    expandedState.value = false
+
+                    isReading = !isReading
                 }
-            }
+            )
         }
     ) {
         if (!isReading) {

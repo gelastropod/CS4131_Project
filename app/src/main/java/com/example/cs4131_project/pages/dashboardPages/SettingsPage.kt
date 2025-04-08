@@ -58,7 +58,32 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
                     Spacer(modifier = Modifier.weight(1f))
                     Switch(
                         checked = MainActivity.darkThemeState.value,
-                        onCheckedChange = {MainActivity.darkThemeState.value = it }
+                        onCheckedChange = {
+                            MainActivity.darkThemeState.value = it
+
+                            val editor = MainActivity.sharedPreferences.edit()
+                            editor.putBoolean("darkTheme", it)
+                            editor.apply()
+                        }
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(getString(context, R.string.settingsPage7))
+                    Spacer(modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = MainActivity.dynamicColorState.value,
+                        onCheckedChange = {
+                            MainActivity.dynamicColorState.value = it
+
+                            val editor = MainActivity.sharedPreferences.edit()
+                            editor.putBoolean("dynamicColor", it)
+                            editor.apply()
+                        }
                     )
                 }
             }

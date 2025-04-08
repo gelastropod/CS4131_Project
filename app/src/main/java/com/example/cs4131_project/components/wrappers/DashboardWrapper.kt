@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -153,12 +154,22 @@ fun DashboardWrapper(
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.5f)
             ) {
+                Image(
+                    painter = painterResource(R.drawable.app_icon),
+                    contentDescription = "funny"
+                )
                 Text(
                     text = getString(context, R.string.dashboardWrapper7),
                     modifier = Modifier.padding(16.dp)
                 )
                 HorizontalDivider()
                 NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.view_dashboard),
+                            contentDescription = "dashboard"
+                        )
+                    },
                     label = { Text(getString(context, R.string.dashboardWrapper8)) },
                     selected = false,
                     onClick = {
@@ -170,6 +181,12 @@ fun DashboardWrapper(
                     shape = RectangleShape
                 )
                 NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.cog),
+                            contentDescription = "dashboard"
+                        )
+                    },
                     label = { Text(getString(context, R.string.dashboardWrapper9)) },
                     selected = false,
                     onClick = {
@@ -182,6 +199,12 @@ fun DashboardWrapper(
                 )
                 if (mode != "personal") {
                     NavigationDrawerItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.google_classroom),
+                                contentDescription = "dashboard"
+                            )
+                        },
                         label = { Text(getString(context, R.string.dashboardWrapper10)) },
                         selected = false,
                         onClick = {
@@ -194,6 +217,12 @@ fun DashboardWrapper(
                     )
                 }
                 NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.logout),
+                            contentDescription = "dashboard"
+                        )
+                    },
                     label = { Text(getString(context, R.string.dashboardWrapper11)) },
                     selected = false,
                     onClick = {
@@ -202,6 +231,12 @@ fun DashboardWrapper(
                     shape = RectangleShape
                 )
                 NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.import_icon),
+                            contentDescription = "dashboard"
+                        )
+                    },
                     label = { Text(getString(context, R.string.dashboardWrapper12)) },
                     selected = false,
                     onClick = {
@@ -217,6 +252,12 @@ fun DashboardWrapper(
                     shape = RectangleShape
                 )
                 NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.information),
+                            contentDescription = "dashboard"
+                        )
+                    },
                     label = {Text(getString(context, R.string.dashboardWrapper15))},
                     selected = false,
                     onClick = {

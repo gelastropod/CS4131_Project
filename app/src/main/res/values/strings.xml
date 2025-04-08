@@ -179,4 +179,6 @@
     </string>
     <string name="settingsPage6">Enable opening sidebar when\nswiping right</string>
     <string name="createClassPage4">Name already exists!</string>
+    <string name="notesPage1">Change notes view</string>
+    <string name="settingsPage7">Toggle dynamic theme</string>
 </resources>

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -62,6 +63,9 @@ class MainActivity : ComponentActivity() {
         var darkThemeState = mutableStateOf(false)
         var darkTheme: Boolean = false
             get() = darkThemeState.value
+        var dynamicColorState = mutableStateOf(false)
+        var dynamicColor: Boolean = false
+            get() = dynamicColorState.value
     }
 
     private fun isSystemInDarkMode(context: Context): Boolean {
@@ -83,10 +87,12 @@ class MainActivity : ComponentActivity() {
         sharedPreferences = applicationContext.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
         GlobalDatastore.sharedPreferences = sharedPreferences
 
-        darkThemeState.value = isSystemInDarkMode(applicationContext)
+        dynamicColorState.value = sharedPreferences.getBoolean("dynamicColor", false)
+
+        darkThemeState.value = sharedPreferences.getBoolean("darkTheme", isSystemInDarkMode(applicationContext))
 
         setContent {
-            AppTheme(darkTheme = darkTheme) {
+            AppTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
