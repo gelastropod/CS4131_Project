@@ -16,6 +16,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.graphics.GraphRenderer2D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
@@ -61,7 +62,7 @@ fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphV
             factory = { context ->
                 renderer = GraphRenderer2D(context, Paint().apply{
                     color = backgroundColor.toArgb()
-                }, graphViewModel)
+                }, graphViewModel, MainActivity.darkTheme)
 
                 renderer
             },

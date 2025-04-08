@@ -1,6 +1,7 @@
 package com.example.cs4131_project.pages.dashboardPages
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -46,6 +48,7 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
     val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(0) }
+    var selectedOption by remember { mutableStateOf(0) }
 
     DashboardWrapper(navController, getString(context, R.string.createNewPageTitle), mode, handler = handler) {
         Column(
@@ -156,6 +159,36 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
                         singleLine = true,
                         placeholder = { Text(getString(context, R.string.createNewPage5)) }
                     )
+                    if (showDialog == 1) {
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable { selectedOption = 0 }.weight(1f)
+                            ) {
+                                RadioButton(
+                                    selected = selectedOption == 0,
+                                    onClick = { selectedOption = 0 }
+                                )
+                                Text(getString(context, R.string.createNewPage10))
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable { selectedOption = 1 }.weight(1f)
+                            ) {
+                                RadioButton(
+                                    selected = selectedOption == 1,
+                                    onClick = { selectedOption = 1 }
+                                )
+                                Text(getString(context, R.string.createNewPage11))
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {

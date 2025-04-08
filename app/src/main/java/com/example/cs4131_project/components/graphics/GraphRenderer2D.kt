@@ -22,15 +22,15 @@ import com.example.cs4131_project.model.utility.Point.Companion.toPoint
 import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point2D.Companion.point
 
-class GraphRenderer2D(context: Context, background: Paint, private val graphViewModel: GraphViewModel? = null) : View(context) {
+class GraphRenderer2D(context: Context, background: Paint, private val graphViewModel: GraphViewModel? = null, darkTheme: Boolean = true) : View(context) {
     private val drawer = Drawer(Canvas())
     private val gridDrawer = GridDrawer(drawer)
     private val handler = Handler(Looper.getMainLooper())
     private var frameStart = SystemClock.elapsedRealtime()
 
     private val backgroundColorPoint = toPoint(background)
-    private val canvasBackgroundColorPoint = Point(1.0, 1.0, 1.0)
-    private val lineColorPoint = Point(0.0, 0.0, 0.0)
+    private val canvasBackgroundColorPoint = backgroundColorPoint
+    private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
 
     private val centerPoint = Point2D(0.0, 0.0)
     private var scale = Point2D(1.0, 1.0)
@@ -44,30 +44,7 @@ class GraphRenderer2D(context: Context, background: Paint, private val graphView
 
     private var scaling = 0
 
-    /*
-    private val paintA = toPoint(Paint().apply {color = Color.RED})
-    private val paintB = toPoint(Paint().apply {color = Color.BLUE})
-    private val startPointA = Point(9.0, 9.0, 28.0)
-    private val startPointB = Point(9.0, 9.0, 28.0001)
-    private val pointsA: ArrayList<Point> = arrayListOf()
-    private val pointsB: ArrayList<Point> = arrayListOf()
-    private val numPoints = 300
-    */
-
     constructor(context: Context) : this(context, Paint().apply {color = Color.TRANSPARENT})
-
-    /*
-    private val sigma = 10f
-    private val rho = 28f
-    private val beta = 8f/3f
-    private fun lorenz(point: Point): Point {
-        return Point(
-            sigma * (point.y - point.x),
-            point.x * (rho - point.z) - point.y,
-            point.x * point.y - beta * point.z
-        )
-    }
-    */
 
     fun recenter() {
         centering = true
@@ -121,36 +98,15 @@ class GraphRenderer2D(context: Context, background: Paint, private val graphView
                 numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             }
 
-            /*
-            if (pointsA.graphViewModel.size == numPoints)
-                pointsA.removeAt(0)
-
-            val previousPointA = pointsA[pointsA.graphViewModel.size - 1]
-            val dPointA = lorenz(previousPointA)
-            val newPointA = previousPointA + dPointA * elapsedTime
-            pointsA.add(newPointA)
-
-            if (pointsB.graphViewModel.size == numPoints)
-                pointsB.removeAt(0)
-
-            val previousPointB = pointsB[pointsB.graphViewModel.size - 1]
-            val dPointB = lorenz(previousPointB)
-            val newPointB = previousPointB + dPointB * elapsedTime
-            pointsB.add(newPointB)
-            */
-
             invalidate()
             handler.postDelayed(this, 0)
         }
     }
 
     init {
-        setBackgroundColor(Color.WHITE)
+        setBackgroundColor(background.color)
 
         handler.post(updateRunnable)
-
-        //pointsA.add(startPointA)
-        //pointsB.add(startPointB)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -168,20 +124,6 @@ class GraphRenderer2D(context: Context, background: Paint, private val graphView
         for (equation in graphViewModel.equations) {
             equation.drawOnGrid(gridDrawer, graphViewModel.viewPoint, graphViewModel.size, backgroundColorPoint)
         }
-
-        /*
-        for (index in 1..<pointsA.graphViewModel.size) {
-            val indexFraction = index.toFloat() / pointsA.graphViewModel.size.toFloat()
-            val lineColorPoint = paintA * indexFraction + backgroundColorPoint * (1f - indexFraction)
-            drawer.drawLine(point(pointsA[index - 1]) * 10f, point(pointsA[index]) * 10f, lineColorPoint.toPaint())
-        }
-
-        for (index in 1..<pointsB.graphViewModel.size) {
-            val indexFraction = index.toFloat() / pointsB.graphViewModel.size.toFloat()
-            val lineColorPoint = paintB * indexFraction + backgroundColorPoint * (1f - indexFraction)
-            drawer.drawLine(point(pointsB[index - 1]) * 10f, point(pointsB[index]) * 10f, lineColorPoint.toPaint())
-        }
-        */
     }
 
     private var lastTouchX = 0f

@@ -181,4 +181,6 @@
     <string name="createClassPage4">Name already exists!</string>
     <string name="notesPage1">Change notes view</string>
     <string name="settingsPage7">Toggle dynamic theme</string>
+    <string name="createNewPage10">2D Graph</string>
+    <string name="createNewPage11">3D Graph</string>
 </resources>
