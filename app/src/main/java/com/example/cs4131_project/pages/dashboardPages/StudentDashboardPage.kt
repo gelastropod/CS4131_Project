@@ -28,6 +28,7 @@ import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.firestoreModels.SavedItem
 import com.example.cs4131_project.model.firestoreModels.UserAccount
+import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
@@ -40,7 +41,7 @@ import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
+fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel, graph3ViewModel: Graph3ViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -98,8 +99,14 @@ fun StudentDashboardPage(navController: NavController, handler: FirestoreHandler
                         } else if (item.second.izNotesItem) {
                             navController.navigate("notesPage/student/${item.second.notesItem?.notesContent}/${item.first}")
                         } else {
-                            graphViewModel.equations = item.second.graphItem?.equations!!
-                            navController.navigate("graphPage/student/${item.first}")
+                            if (item.second.iz3d) {
+                                graph3ViewModel.equation.value = item.second.graph3Item?.equation!!
+                                navController.navigate("graph3Page/student/${item.first}")
+                            }
+                            else {
+                                graphViewModel.equations = item.second.graphItem?.equations!!
+                                navController.navigate("graphPage/student/${item.first}")
+                            }
                         }
                     }
                 ) { item ->

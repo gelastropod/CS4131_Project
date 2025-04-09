@@ -38,13 +38,17 @@ import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.DashboardWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
+import com.example.cs4131_project.model.firestoreModels.Graph3Item
 import com.example.cs4131_project.model.firestoreModels.GraphItem
 import com.example.cs4131_project.model.firestoreModels.NotesItem
 import com.example.cs4131_project.model.firestoreModels.SavedItem
+import com.example.cs4131_project.model.graph.Equation3
+import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.graph.GraphViewModel
+import com.example.cs4131_project.model.utility.Point
 
 @Composable
-fun CreateNewPage(navController: NavController, mode: String, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
+fun CreateNewPage(navController: NavController, mode: String, handler: FirestoreHandler, graphViewModel: GraphViewModel, graph3ViewModel: Graph3ViewModel) {
     val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(0) }
@@ -202,16 +206,27 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
                         }
 
                         if (showDialog == 1) {
-                            handler.data[key]?.savedData?.set(name, SavedItem(false, null, GraphItem()))
+                            if (selectedOption == 0) {
+                                handler.data[key]?.savedData?.set(name, SavedItem(false, false, null, GraphItem(), null))
+                            }
+                            else {
+                                handler.data[key]?.savedData?.set(name, SavedItem(false, true, null, null, Graph3Item()))
+                            }
                         }
                         else {
-                            handler.data[key]?.savedData?.set(name, SavedItem(true, NotesItem(), null))
+                            handler.data[key]?.savedData?.set(name, SavedItem(true, false, NotesItem(), null, null))
                         }
                         handler.updateDatabase()
 
                         if (showDialog == 1) {
-                            graphViewModel.clearEquations()
-                            navController.navigate("graphPage/$mode/$name")
+                            if (selectedOption == 0) {
+                                graphViewModel.clearEquations()
+                                navController.navigate("graphPage/$mode/$name")
+                            }
+                            else {
+                                graph3ViewModel.equation.value = Equation3("", Point(1.0, 0.5, 0.5))
+                                navController.navigate("graph3Page/$mode/$name")
+                            }
                         }
                         else {
                             navController.navigate("notesPage/$mode//$name")

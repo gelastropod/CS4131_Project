@@ -22,6 +22,7 @@ import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point.Companion.toPoint
 import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point2D.Companion.point
+import com.example.cs4131_project.model.utility.Point4D
 
 class GraphRenderer3D(context: Context, background: Paint, private val graphViewModel: Graph3ViewModel? = null, darkTheme: Boolean = true) : View(context) {
     private val drawer = Drawer(Canvas())
@@ -41,6 +42,41 @@ class GraphRenderer3D(context: Context, background: Paint, private val graphView
 
     constructor(context: Context) : this(context, Paint().apply {color = Color.TRANSPARENT})
 
+    private fun projection(fov: Double, aspect: Double, z_near: Double, z_far: Double): Matrix {
+        return Matrix(
+            doubleArrayOf(
+                1.0 / (aspect * Math.tan(Math.toRadians(fov / 2.0))), 0.0, 0.0, 0.0,
+                0.0, 1.0 / Math.tan(Math.toRadians(fov / 2.0)), 0.0, 0.0,
+                0.0, 0.0, -(z_far + z_near) / (z_far - z_near), -2.0 * z_far * z_near / (z_far - z_near),
+                0.0, 0.0, -1.0, 0.0
+            )
+        )
+    }
+
+    private fun model(point: Point4D): Matrix {
+        return Matrix(
+            doubleArrayOf(
+                1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                point.x, point.y, point.z, 1.0
+            )
+        )
+    }
+
+    private fun scale(point: Point): Matrix {
+        return Matrix(
+            doubleArrayOf(
+                point.x, 0.0, 0.0, 0.0,
+                0.0, point.y, 0.0, 0.0,
+                0.0, 0.0, point.z, 0.0,
+                0.0, 0.0, 0.0, 1.0
+            )
+        )
+    }
+
+
+
     private val updateRunnable = object : Runnable {
         override fun run() {
             val currentTime = SystemClock.elapsedRealtime()
@@ -49,7 +85,7 @@ class GraphRenderer3D(context: Context, background: Paint, private val graphView
 
             if (graphViewModel == null) return
 
-            var numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
+            /*var numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             while (numSpaces.x >= 18.0) {
                 when (graphViewModel.minorSpace.x.toInt()) {
                     1 -> graphViewModel.minorSpace *= 2.0
@@ -79,7 +115,7 @@ class GraphRenderer3D(context: Context, background: Paint, private val graphView
                     }
                 }
                 numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
-            }
+            }*/
 
             invalidate()
             handler.postDelayed(this, 0)
@@ -97,13 +133,11 @@ class GraphRenderer3D(context: Context, background: Paint, private val graphView
 
         super.onDraw(canvas)
 
-        canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
+        /*canvas.clipRect(0f, 0f, width.toFloat(), height.toFloat())
 
         drawer.canvas = canvas
 
-        scale = graphViewModel.size / graphViewModel.screenSpace * 2.0 * correctionFactor
-
-
+        scale = graphViewModel.size / graphViewModel.screenSpace * 2.0 * correctionFactor*/
     }
 
     private var lastTouchX = 0f

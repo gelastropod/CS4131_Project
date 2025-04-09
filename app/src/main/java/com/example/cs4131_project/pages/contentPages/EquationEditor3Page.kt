@@ -56,13 +56,6 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    handler.unsaved = true
-
-                    graphViewModel.equation.value.equationString = inputExpressionState.value
-
-                    val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                    handler.unsavedData[key]?.savedData?.get(name)?.graph3Item?.equation?.equationString = inputExpressionState.value
-
                     navController.navigate("graph3Page/$mode/$name")
                 }
             ) {
@@ -83,6 +76,13 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
                 value = inputExpressionState.value,
                 onValueChange = { newValue ->
                     inputExpressionState.value = newValue
+
+                    handler.unsaved = true
+
+                    graphViewModel.equation.value.equationString = inputExpressionState.value
+
+                    val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                    handler.unsavedData[key]?.savedData?.get(name)?.graph3Item?.equation?.equationString = inputExpressionState.value
                 },
                 label = { Text("Enter LaTeX Equation") },
                 modifier = Modifier.fillMaxWidth(),
@@ -98,12 +98,12 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
                     MathView(context).apply {
                         setBackgroundColor(Color.TRANSPARENT)
                         setTextColor(textColor.toArgb())
-                        setDisplayText("\$f(x)=${inputExpressionState.value}\$")
+                        setDisplayText("\$f(x,y)=${inputExpressionState.value}\$")
                         mathViewRef.value = this
                     }
                 },
                 update = {
-                    it.setDisplayText("\$f(x)=${inputExpressionState.value}\$")
+                    it.setDisplayText("\$f(x,y)=${inputExpressionState.value}\$")
                 }
             )
         }
