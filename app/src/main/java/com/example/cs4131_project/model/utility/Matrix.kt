@@ -51,7 +51,7 @@ data class Matrix(val data: DoubleArray) {
             for (col in 0..3) {
                 var sum = 0.0
                 for (i in 0..3) {
-                    sum += this.data[row * 4 + i] * other.data[i * 4 + col]
+                    sum += data[row * 4 + i] * other.data[i * 4 + col]
                 }
                 result[row * 4 + col] = sum
             }

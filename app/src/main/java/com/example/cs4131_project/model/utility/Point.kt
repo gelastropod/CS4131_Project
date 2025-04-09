@@ -5,9 +5,12 @@ import android.graphics.Color.blue
 import android.graphics.Color.green
 import android.graphics.Color.red
 import android.graphics.Paint
+import kotlin.math.sqrt
 import androidx.compose.ui.graphics.Color as Color2
 
 data class Point(val x: Double, val y: Double, val z: Double) {
+    constructor(point: Point4D): this(point.x, point.y, point.z)
+
     operator fun plus(other: Point): Point {
         return Point(x + other.x, y + other.y, z + other.z)
     }
@@ -38,6 +41,19 @@ data class Point(val x: Double, val y: Double, val z: Double) {
 
     override fun toString(): String {
         return "($x, $y, $z)"
+    }
+
+    fun normalize(): Point {
+        val length = sqrt(this * this)
+        return this / length
+    }
+
+    fun cross(other: Point): Point {
+        return Point(
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x
+        )
     }
 
     companion object {

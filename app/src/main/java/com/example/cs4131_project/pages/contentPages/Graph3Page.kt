@@ -18,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
+import com.example.cs4131_project.components.graphics.GraphGLSurfaceView
 import com.example.cs4131_project.components.graphics.GraphRenderer2D
 import com.example.cs4131_project.components.graphics.GraphRenderer3D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
@@ -29,9 +30,6 @@ import com.example.cs4131_project.model.graph.GraphViewModel
 fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph3ViewModel = viewModel(), handler: FirestoreHandler, name: String) {
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
-    var renderer = GraphRenderer3D(context, Paint().apply{
-        color = backgroundColor.toArgb()
-    }, graphViewModel)
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {
@@ -52,11 +50,9 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                renderer = GraphRenderer3D(context, Paint().apply{
+                GraphGLSurfaceView(context, Paint().apply{
                     color = backgroundColor.toArgb()
                 }, graphViewModel, MainActivity.darkTheme)
-
-                renderer
             },
             update = { view ->
 
