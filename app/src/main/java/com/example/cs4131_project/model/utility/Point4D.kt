@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color as Color2
 
 data class Point4D(val x: Double, val y: Double, val z: Double, val w: Double) {
     constructor(point: Point) : this(point.x, point.y, point.z, 1.0)
+    constructor(values: FloatArray) : this(values[0].toDouble(), values[1].toDouble(), values[2].toDouble(), values[3].toDouble())
 
     operator fun plus(other: Point4D): Point4D {
         return Point4D(x + other.x, y + other.y, z + other.z, w + other.w)

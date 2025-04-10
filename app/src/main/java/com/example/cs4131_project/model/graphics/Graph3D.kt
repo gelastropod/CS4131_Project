@@ -2,6 +2,7 @@ package com.example.cs4131_project.model.graphics
 
 import android.opengl.GLES20
 import android.opengl.Matrix
+import android.util.Log
 import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
@@ -10,7 +11,9 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 
-class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point) {
+class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point, darkTheme: Boolean) {
+    private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
+
     private val vertexBuffer: FloatBuffer
     private val colorBuffer: FloatBuffer
     private val indexBuffer: ShortBuffer
@@ -18,6 +21,7 @@ class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point) {
     val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
     private val mvpMatrix = FloatArray(16)
+    private val epsilon = 0.02f
 
     private val vertexShaderCode = """
         uniform mat4 uMVPMatrix;
@@ -46,30 +50,43 @@ class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point) {
         0f, 1f, 0f,
         0f, -1f, 0f,
         0f, 0f, 1f,
-        0f, 0f, -1f
+        0f, 0f, -1f,
+        -epsilon, 0f, 1f - epsilon,
+        epsilon, 0f, 1f - epsilon,
+        -epsilon, 1f - epsilon, 0f,
+        epsilon, 1f - epsilon, 0f,
+        1f - epsilon, 0f, -epsilon,
+        1f - epsilon, 0f, epsilon
     )
 
     private val colors = floatArrayOf(
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f,
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f,
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f,
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f,
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f,
-        backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1f
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
+        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f
     )
 
     private val indices = shortArrayOf(
-        0, 1, 2, 1, 3, 2,
-        1, 5, 3, 5, 7, 3,
-        5, 4, 7, 4, 6, 7,
-        4, 0, 6, 0, 2, 6,
-        4, 5, 0, 5, 1, 0,
-        2, 3, 6, 3, 7, 6
+        0, 1,
+        2, 3,
+        4, 5,
+        4, 6,
+        4, 7,
+        2, 8,
+        2, 9,
+        0, 10,
+        0, 11
     )
 
     init {
-
-
         vertexBuffer = ByteBuffer.allocateDirect(vertices.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer().apply {
                 put(vertices)
@@ -96,6 +113,14 @@ class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point) {
             GLES20.glAttachShader(it, fragmentShader)
             GLES20.glLinkProgram(it)
         }
+
+        val linkStatus = IntArray(1)
+        GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0)
+        if (linkStatus[0] == 0) {
+            val error = GLES20.glGetProgramInfoLog(program)
+            GLES20.glDeleteProgram(program)
+            Log.e("OpenGL", error)
+        }
     }
 
     fun draw(modelMatrix: FloatArray) {
@@ -115,16 +140,25 @@ class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point) {
         Matrix.multiplyMM(mvpMatrix, 0, mvpMatrix, 0, modelMatrix, 0)
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
 
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, indices.size, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
+        GLES20.glDrawElements(GLES20.GL_LINES, indices.size, GLES20.GL_UNSIGNED_SHORT, indexBuffer)
 
         GLES20.glDisableVertexAttribArray(positionHandle)
         GLES20.glDisableVertexAttribArray(colorHandle)
     }
 
     private fun loadShader(type: Int, shaderCode: String): Int {
-        return GLES20.glCreateShader(type).also {
-            GLES20.glShaderSource(it, shaderCode)
-            GLES20.glCompileShader(it)
+        val shader = GLES20.glCreateShader(type)
+        GLES20.glShaderSource(shader, shaderCode)
+        GLES20.glCompileShader(shader)
+
+        val compileStatus = IntArray(1)
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0)
+        if (compileStatus[0] == 0) {
+            val error = GLES20.glGetShaderInfoLog(shader)
+            GLES20.glDeleteShader(shader)
+            Log.e("OpenGL", error)
         }
+
+        return shader
     }
 }

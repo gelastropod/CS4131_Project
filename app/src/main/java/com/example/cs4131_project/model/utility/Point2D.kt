@@ -9,6 +9,7 @@ data class Point2D(var x: Double, var y: Double) {
 
     constructor() : this(0.0, 0.0)
     constructor(point: Point): this(point.x, point.y)
+    constructor(point: Point4D): this(point.x, point.y)
 
     private fun isEqual(x: Double, y: Double): Boolean {
         return Math.abs(x - y) < 0.01

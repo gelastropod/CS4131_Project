@@ -1,6 +1,8 @@
 package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.Paint
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -20,7 +22,6 @@ import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.graphics.GraphGLSurfaceView
 import com.example.cs4131_project.components.graphics.GraphRenderer2D
-import com.example.cs4131_project.components.graphics.GraphRenderer3D
 import com.example.cs4131_project.components.wrappers.ContentWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.graph.Graph3ViewModel
@@ -47,16 +48,22 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
         originalName = name,
         handler = handler
     ) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { context ->
-                GraphGLSurfaceView(context, Paint().apply{
-                    color = backgroundColor.toArgb()
-                }, graphViewModel, MainActivity.darkTheme)
-            },
-            update = { view ->
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { context ->
+                    GraphGLSurfaceView(context, Paint().apply {
+                        color = backgroundColor.toArgb()
+                    }, graphViewModel, MainActivity.darkTheme)
+                },
+                update = { view ->
 
-            }
-        )
+                }
+            )
+
+
+        }
     }
 }

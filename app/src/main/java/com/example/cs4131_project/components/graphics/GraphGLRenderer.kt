@@ -10,7 +10,7 @@ import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.utility.Point
 
 class GraphGLRenderer(background: Paint, graphViewModel: Graph3ViewModel, darkTheme: Boolean) : GLSurfaceView.Renderer {
-    val backgroundColorPoint = Point.toPoint(background)
+    private val backgroundColorPoint = Point.toPoint(background)
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         GLES20.glClearColor(backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1.0f)
