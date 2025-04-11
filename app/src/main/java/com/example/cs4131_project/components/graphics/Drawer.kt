@@ -3,6 +3,7 @@ package com.example.cs4131_project.components.graphics
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import com.example.cs4131_project.model.utility.Point2D
 
 class Drawer(var canvas: Canvas) {
@@ -30,6 +31,18 @@ class Drawer(var canvas: Canvas) {
 
     fun drawLine(start: Point2D, end: Point2D, color: Int) {
         drawLine(start, end, toPaint(color))
+    }
+
+    fun drawQuad(point1: Point2D, point2: Point2D, point3: Point2D, point4: Point2D, color: Paint) {
+        canvas.drawPath(
+            Path().apply {
+                moveTo(point1.x.toFloat(), point1.y.toFloat())
+                lineTo(point2.x.toFloat(), point2.y.toFloat())
+                lineTo(point3.x.toFloat(), point3.y.toFloat())
+                lineTo(point4.x.toFloat(), point4.y.toFloat())
+                lineTo(point1.x.toFloat(), point1.y.toFloat())
+            }, color
+        )
     }
 
     fun drawLines(points: ArrayList<Point2D>, color: Paint) {

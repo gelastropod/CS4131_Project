@@ -93,11 +93,6 @@ fun SignInPage(navController: NavController, handler: FirestoreHandler) {
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
-                    if (!handler.data.containsKey(username) || handler.data[username]?.usage == "class") {
-                        Toast.makeText(context, getString(context, R.string.signInPage5), Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
                     if (handler.data[username]?.password != password) {
                         Toast.makeText(context, getString(context, R.string.signInPage6), Toast.LENGTH_SHORT).show()
                         return@Button

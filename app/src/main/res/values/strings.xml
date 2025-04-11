@@ -183,4 +183,8 @@
     <string name="settingsPage7">Toggle dynamic theme</string>
     <string name="createNewPage10">2D Graph</string>
     <string name="createNewPage11">3D Graph</string>
+    <string name="homePage6">Sample notes</string>
+    <string name="homePage7">Sample 2D graph 1</string>
+    <string name="homePage8">Sample 2D graph 2</string>
+    <string name="contentWrapper17">Existing item with the same name will be overrided!</string>
 </resources>

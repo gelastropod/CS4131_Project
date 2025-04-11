@@ -51,18 +51,41 @@ fun HomePage(navController: NavController) {
                 HorizontalMultiBrowseCarousel(
                     state = carouselMultiBrowseState,
                     preferredItemWidth = 250.dp,
-                    itemSpacing = 19.dp,
-                    contentPadding = PaddingValues(start = 19.dp),
+                    itemSpacing = 19.dp
                 ) { index ->
                     when (index) {
                         0 -> {
-                            Image(painter = painterResource(R.drawable.notes), contentDescription = "Epic Notes")
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.notes),
+                                    contentDescription = "Epic Notes"
+                                )
+                                Text(getString(context, R.string.homePage6), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
                         }
                         1 -> {
-                            Image(painter = painterResource(R.drawable.graph), contentDescription = "Epic Graph")
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.graph),
+                                    contentDescription = "Epic Graph"
+                                )
+                                Text(getString(context, R.string.homePage7), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
                         }
                         2 -> {
-                            Image(painter = painterResource(R.drawable.graph2), contentDescription = "Epic Graph 2")
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.graph2),
+                                    contentDescription = "Epic Graph 2"
+                                )
+                                Text(getString(context, R.string.homePage8), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
                         }
                     }
                 }

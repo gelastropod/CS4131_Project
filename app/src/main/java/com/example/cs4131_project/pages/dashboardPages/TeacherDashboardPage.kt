@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
@@ -28,6 +30,7 @@ import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.firestoreModels.SavedItem
 import com.example.cs4131_project.model.firestoreModels.UserAccount
+import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
@@ -41,7 +44,7 @@ import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun TeacherDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel) {
+fun TeacherDashboardPage(navController: NavController, handler: FirestoreHandler, graphViewModel: GraphViewModel, graph3ViewModel: Graph3ViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -99,10 +102,17 @@ fun TeacherDashboardPage(navController: NavController, handler: FirestoreHandler
                         } else if (item.second.izNotesItem) {
                             navController.navigate("notesPage/teacher/${item.second.notesItem?.notesContent}/${item.first}")
                         } else {
-                            graphViewModel.equations = item.second.graphItem?.equations!!
-                            navController.navigate("graphPage/teacher/${item.first}")
+                            if (item.second.iz3d) {
+                                graph3ViewModel.equation.value = item.second.graph3Item?.equation!!
+                                navController.navigate("graph3Page/teacher/${item.first}")
+                            }
+                            else {
+                                graphViewModel.equations = item.second.graphItem?.equations!!
+                                navController.navigate("graphPage/teacher/${item.first}")
+                            }
                         }
-                    }
+                    },
+                    modifier = Modifier.padding(5.dp)
                 ) { item ->
                     Column(
                         modifier = Modifier.fillMaxSize()

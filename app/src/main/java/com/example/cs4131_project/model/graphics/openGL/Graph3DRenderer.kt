@@ -1,0 +1,61 @@
+package com.example.cs4131_project.model.graphics.openGL
+
+import android.graphics.Paint
+import android.opengl.GLES20
+import android.opengl.GLSurfaceView
+import android.opengl.Matrix
+import android.util.Log
+import com.example.cs4131_project.model.graph.Graph3ViewModel
+import com.example.cs4131_project.model.utility.Point
+import javax.microedition.khronos.opengles.GL10
+import javax.microedition.khronos.egl.EGLConfig
+
+class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, val darkTheme: Boolean) : GLSurfaceView.Renderer {
+    val backgroundColorPoint = Point.toPoint(background)
+    private lateinit var graph: Graph3D
+    private lateinit var graphLabels: ArrayList<Graph3DLabel>
+    var modelMatrix = FloatArray(16)
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        GLES20.glClearColor(backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1.0f)
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+        graph = Graph3D(graphViewModel, backgroundColorPoint, darkTheme)
+
+        val textureIDs = IntArray(4)
+        GLES20.glGenTextures(4, textureIDs, 0)
+
+        graphLabels = arrayListOf(
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(1.03, 0.0, 0.01), false, textureIDs[0], "x"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, -1.03), false, textureIDs[1], "y"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.03, 0.0), true, textureIDs[2], "z"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, 0.0), true, textureIDs[3], "graph", 64f, 4f)
+        )
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        GLES20.glViewport(0, 0, width, height)
+        val ratio = width.toFloat() / height
+        Matrix.frustumM(graph.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+
+        for (graphLabel in graphLabels) {
+            Matrix.frustumM(graphLabel.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+        }
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        val error = GLES20.glGetError()
+        if (error != GLES20.GL_NO_ERROR) {
+            Log.e("Graph3DLabel", "OpenGL error before loading texture: $error")
+        }
+
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        graph.draw(modelMatrix)
+
+        for (graphLabel in graphLabels) {
+            graphLabel.draw(modelMatrix)
+        }
+    }
+}
