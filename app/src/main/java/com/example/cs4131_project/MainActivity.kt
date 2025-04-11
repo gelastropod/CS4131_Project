@@ -146,8 +146,6 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
                 detectTapGestures(onTap = {
                     keyboardController?.hide()
                     focusManager.clearFocus()
-                    if (EquationPage.initialised)
-                        EquationPage.selected.value = -1
                 })
             }
     ) {

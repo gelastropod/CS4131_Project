@@ -49,7 +49,7 @@ fun StudentClassListPage(navController: NavController, handler: FirestoreHandler
         "student", handler = handler
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(5.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

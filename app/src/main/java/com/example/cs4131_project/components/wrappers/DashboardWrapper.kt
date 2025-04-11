@@ -130,7 +130,6 @@ fun DashboardWrapper(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showLogOutDialog by remember { mutableStateOf(false) }
-    val gson = Gson()
     val route = navController.currentBackStackEntry?.destination?.route ?: ""
 
     val importFilePickerLauncher = rememberLauncherForActivityResult(
@@ -140,7 +139,9 @@ fun DashboardWrapper(
             val uri: Uri? = result.data?.data
             uri?.let {
                 val fileContent = readFileContent(context, it)
-                val fileName = getFileName(context, it)
+                var fileName = getFileName(context, it)
+                if (fileName.endsWith(".txt"))
+                    fileName = fileName.substring(0, fileName.length - 4)
 
                 navController.navigate("redirectPage/$fileName/$fileContent")
             }
@@ -152,7 +153,7 @@ fun DashboardWrapper(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                modifier = Modifier.fillMaxWidth(0.5f)
+                modifier = Modifier.fillMaxWidth(0.8f)
             ) {
                 Image(
                     painter = painterResource(R.drawable.app_icon),
@@ -160,7 +161,8 @@ fun DashboardWrapper(
                 )
                 Text(
                     text = getString(context, R.string.dashboardWrapper7),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.displaySmall
                 )
                 HorizontalDivider()
                 NavigationDrawerItem(
@@ -219,20 +221,6 @@ fun DashboardWrapper(
                 NavigationDrawerItem(
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.logout),
-                            contentDescription = "dashboard"
-                        )
-                    },
-                    label = { Text(getString(context, R.string.dashboardWrapper11)) },
-                    selected = false,
-                    onClick = {
-                        showLogOutDialog = true
-                    },
-                    shape = RectangleShape
-                )
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
                             painter = painterResource(R.drawable.import_icon),
                             contentDescription = "dashboard"
                         )
@@ -241,7 +229,7 @@ fun DashboardWrapper(
                     selected = false,
                     onClick = {
                         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            type = "*/*"
+                            type = "text/plain"
                         }
                         importFilePickerLauncher.launch(intent)
 
@@ -265,6 +253,20 @@ fun DashboardWrapper(
 
                         if (!route.startsWith("informationPage"))
                             navController.navigate("informationPage/$mode")
+                    },
+                    shape = RectangleShape
+                )
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.logout),
+                            contentDescription = "dashboard"
+                        )
+                    },
+                    label = { Text(getString(context, R.string.dashboardWrapper11)) },
+                    selected = false,
+                    onClick = {
+                        showLogOutDialog = true
                     },
                     shape = RectangleShape
                 )

@@ -25,13 +25,10 @@ class Graph3DLabel(
     textSize: Float = 64f,
     scale: Float = 1.0f
 ) {
+    private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
+
     private fun createTextBitmap(text: String, textSize: Float): Bitmap {
-        val paint = Paint().apply {
-            isAntiAlias = true
-            color = Color.WHITE
-            this.textSize = textSize
-            textAlign = Paint.Align.LEFT
-        }
+        val paint = lineColorPoint.toTextPaint(textSize)
 
         val textBounds = Rect()
         paint.getTextBounds(text, 0, text.length, textBounds)
@@ -46,8 +43,6 @@ class Graph3DLabel(
 
         return bitmap.copy(Bitmap.Config.ARGB_8888, false)
     }
-
-    private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
 
     val bitmap = createTextBitmap(text, textSize)
     val projectionMatrix = FloatArray(16)

@@ -45,6 +45,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
+import com.example.cs4131_project.components.utility.ExpandableFAB
+import com.example.cs4131_project.components.utility.MiniFabItems
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
@@ -66,7 +68,7 @@ fun writeDataToFile(context: Context, uri: Uri, data: String) {
 }
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable () -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, originalName: String, content: @Composable () -> Unit) {
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable (defaults: ArrayList<MiniFabItems>) -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, originalName: String, backRoute: String = "dashboardPage", content: @Composable () -> Unit) {
     val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
@@ -92,7 +94,34 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
     }
 
     Scaffold(
-        floatingActionButton = floatingActionButton
+        floatingActionButton = {
+            floatingActionButton(
+                arrayListOf<MiniFabItems>().apply {
+                    if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                        add(MiniFabItems(
+                            painterResource(R.drawable.pencil), "Rename",
+                            onClick = { showDialog = true }
+                        ))
+                        add(MiniFabItems(
+                            painterResource(R.drawable.content_save), "Save",
+                            onClick = {
+                                handler.save()
+
+                                Toast.makeText(
+                                    context,
+                                    getString(context, R.string.contentWrapper11),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        ))
+                        add(MiniFabItems(
+                            painterResource(R.drawable.delete), "Delete",
+                            onClick = { showDeleteDialog = true }
+                        ))
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -110,78 +139,21 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
-                    onClick = { expandedState.value = !expandedState.value },
+                    onClick = {
+                        expandedState.value = false
+
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TITLE, originalName)
+                        }
+                        exportFilePickerLauncher.launch(intent)
+                    },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
-                        painter = painterResource(id = if (expandedState.value) R.drawable.menu_up else R.drawable.menu_down),
+                        painter = painterResource(R.drawable.export),
                         contentDescription = "Overflow Menu"
-                    )
-                }
-                DropdownMenu(
-                    expanded = expandedState.value,
-                    onDismissRequest = { expandedState.value = false },
-                    offset = DpOffset(x = (-300).dp, y = 0.dp)
-                ) {
-                    menuItems(expandedState)
-                    DropdownMenuItem(
-                        text = { Text(getString(context, R.string.contentWrapper1)) },
-                        onClick = {
-                            expandedState.value = false
-
-                            if (handler.unsaved) {
-                                showUnsavedDialog = true
-                            }
-                            else {
-                                if (GlobalDatastore.currentClass.value.isNotEmpty())
-                                    navController.navigate("classDashboardPage/$mode/${GlobalDatastore.currentClass.value}")
-                                else
-                                    navController.navigate("${mode}DashboardPage")
-                            }
-                        }
-                    )
-                    if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text(getString(context, R.string.contentWrapper2)) },
-                            onClick = {
-                                expandedState.value = false
-
-                                handler.save()
-
-                                Toast.makeText(
-                                    context,
-                                    getString(context, R.string.contentWrapper11),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(getString(context, R.string.contentWrapper3)) },
-                            onClick = {
-                                expandedState.value = false
-                                showDialog = true
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(getString(context, R.string.contentWrapper14)) },
-                            onClick = {
-                                expandedState.value = false
-                                showDeleteDialog = true
-                            }
-                        )
-                    }
-                    DropdownMenuItem(
-                        text = {Text(getString(context, R.string.contentWrapper13))},
-                        onClick = {
-                            expandedState.value = false
-
-                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                                addCategory(Intent.CATEGORY_OPENABLE)
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TITLE, originalName)
-                            }
-                            exportFilePickerLauncher.launch(intent)
-                        }
                     )
                 }
                 Text(
@@ -192,6 +164,29 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         .fillMaxWidth()
                         .align(Alignment.Center)
                 )
+                IconButton(
+                    onClick = {
+                        if (backRoute == "dashboardPage") {
+                            if (handler.unsaved) {
+                                showUnsavedDialog = true
+                            } else {
+                                if (GlobalDatastore.currentClass.value.isNotEmpty())
+                                    navController.navigate("classDashboardPage/$mode/${GlobalDatastore.currentClass.value}")
+                                else
+                                    navController.navigate("${mode}DashboardPage")
+                            }
+                        }
+                        else {
+                            navController.navigate(backRoute)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.arrow_left),
+                        contentDescription = "Back"
+                    )
+                }
             }
             HorizontalDivider()
             Box(

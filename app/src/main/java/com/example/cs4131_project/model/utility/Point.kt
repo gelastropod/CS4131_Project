@@ -83,6 +83,7 @@ data class Point(val x: Double, val y: Double, val z: Double) {
 
     fun toTextPaint(textSize: Float) : Paint {
         return toPaint().apply {
+            isAntiAlias = true
             this.textSize = textSize
             isAntiAlias = true
         }

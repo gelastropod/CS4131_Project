@@ -1,6 +1,6 @@
 package com.example.cs4131_project.pages.contentPages
 
-import android.graphics.Color
+import android.graphics.Color as Color2
 import android.util.Log
 import android.view.MotionEvent
 import android.webkit.ConsoleMessage
@@ -33,6 +33,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,6 +48,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -61,6 +64,9 @@ import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.R
+import com.example.cs4131_project.components.utility.ExpandableFAB
+import com.example.cs4131_project.components.utility.MiniFabItems
+import com.example.cs4131_project.components.utility.noRippleClickable
 import com.example.cs4131_project.components.wrappers.ContentWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
@@ -68,14 +74,14 @@ import com.example.cs4131_project.model.graph.Equation
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
 import katex.hourglass.`in`.mathlib.MathView
+import kotlin.math.exp
 
 object EquationPage {
-    lateinit var selected: MutableState<Int>
     var initialised = false
 }
 
 @Composable
-fun ColorPickerDialogDemo(graphViewModel: GraphViewModel, index: Int, handler: FirestoreHandler) {
+fun ColorPickerDialogDemo(graphViewModel: GraphViewModel, index: Int, handler: FirestoreHandler, mode: String) {
     var showDialog by remember { mutableStateOf(false) }
     var selectedColor by remember { mutableStateOf(graphViewModel.equations[index].color) }
 
@@ -88,7 +94,11 @@ fun ColorPickerDialogDemo(graphViewModel: GraphViewModel, index: Int, handler: F
             modifier = Modifier
                 .fillMaxSize()
                 .background(selectedColor.toColor(), shape = CircleShape)
-                .clickable { showDialog = true }
+                .clickable {
+                    if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                        showDialog = true
+                    }
+                }
         )
 
         if (showDialog) {
@@ -154,136 +164,138 @@ fun EquationPage(
     name: String
 ) {
     val context = LocalContext.current
+    val expandedState = remember{mutableStateOf(false)}
 
     EquationPage.initialised = true
-    EquationPage.selected = remember { mutableStateOf(-1) }
-
-    LaunchedEffect(Unit) {
-        EquationPage.selected.value = -1
-    }
 
     ContentWrapper(navController,
         getString(context, R.string.equationPageTitle),
-        EquationPage.selected.value,
         mode = mode,
         handler = handler,
         originalName = name,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("graphPage/$mode/$name")
-                }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.chart_bell_curve_cumulative),
-                    contentDescription = "Graph"
-                )
-            }
+            ExpandableFAB(
+                ArrayList(buildList {
+                    addAll(it)
+                    add(MiniFabItems(
+                        painterResource(R.drawable.chart_bell_curve_cumulative), "Graph",
+                        onClick = {
+                            navController.navigate("graphPage/$mode/$name")
+                        }
+                    ))
+                }),
+                expandedState
+            ) {expandedState.value = it}
         }
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .noRippleClickable {
+                expandedState.value = false
+            }) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(
+                    items = graphViewModel.equations
+                ) { equation ->
+                    val index = graphViewModel.equations.indexOf(equation)
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
                         Button(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
                             onClick = {
-                                handler.unsaved = true
+                                if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                                    handler.unsaved = true
 
-                                graphViewModel.addEquation("", Point(1.0, 0.5, 0.5))
-
-                                val key =
-                                    if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                                handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations =
-                                    graphViewModel.equations
-                            }
-                        ) {
-                            Text(getString(context, R.string.equationPage2))
-                        }
-                    }
-                }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Spacer(modifier = Modifier.weight(1f))
-                        Button(
-                            onClick = {
-                                handler.unsaved = true
-
-                                navController.navigate("equationEditorPage/$mode/${EquationPage.selected.value}/$name")
+                                    navController.navigate("equationEditorPage/$mode/$index/$name")
+                                }
                             },
-                            enabled = EquationPage.selected.value != -1
+                            shape = RectangleShape,
+                            contentPadding = PaddingValues(10.dp)
                         ) {
-                            Text(getString(context, R.string.contentWrapper9))
-                        }
-                        Button(
-                            onClick = {
-                                handler.unsaved = true
+                            AndroidView(
+                                factory = { context ->
+                                    MathView(context).apply {
+                                        setDisplayText("\$f(x)=${graphViewModel.equations[index].equationString}\$")
+                                        setBackgroundColor(Color2.TRANSPARENT)
+                                        setOnClickListener {
+                                            if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                                                handler.unsaved = true
 
-                                graphViewModel.removeEquation(EquationPage.selected.value)
-                                EquationPage.selected.value = -1
-
-                                val key =
-                                    if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                                handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations =
-                                    graphViewModel.equations
-                            },
-                            enabled = EquationPage.selected.value != -1
-                        ) {
-                            Text(getString(context, R.string.contentWrapper10))
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
-                }
-            }
-            items(
-                items = graphViewModel.equations,
-                key = { it.hashCode() }
-            ) { equation ->
-                val index = graphViewModel.equations.indexOf(equation)
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        onClick = { EquationPage.selected.value = index },
-                        shape = RectangleShape,
-                        contentPadding = PaddingValues(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor =
-                            if (EquationPage.selected.value == index) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        AndroidView(
-                            factory = { context ->
-                                MathView(context).apply {
-                                    setDisplayText("\$f(x)=${graphViewModel.equations[index].equationString}\$")
-                                    setBackgroundColor(Color.TRANSPARENT)
-                                    setOnClickListener {
-                                        EquationPage.selected.value = index
+                                                navController.navigate("equationEditorPage/$mode/$index/$name")
+                                            }
+                                        }
                                     }
                                 }
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ColorPickerDialogDemo(graphViewModel, index, handler, mode)
+                            if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                                IconButton(
+                                    onClick = {
+                                        handler.unsaved = true
+
+                                        graphViewModel.removeEquation(index)
+
+                                        val key =
+                                            if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                                        handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations =
+                                            graphViewModel.equations
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.plus),
+                                        contentDescription = "Delete",
+                                        modifier = Modifier.rotate(45f),
+                                        tint = Color.Black
+                                    )
+                                }
                             }
-                        )
+                        }
                     }
-                    ColorPickerDialogDemo(graphViewModel, index, handler)
+                }
+                if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = {
+                                    handler.unsaved = true
+
+                                    graphViewModel.addEquation("", Point(1.0, 0.5, 0.5))
+
+                                    val key =
+                                        if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                                    handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations =
+                                        graphViewModel.equations
+                                }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                ) {
+                                    Icon(painter = painterResource(R.drawable.plus), contentDescription = "aa")
+                                    Text(getString(context, R.string.equationPage2))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
