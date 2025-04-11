@@ -1,10 +1,6 @@
-package com.example.cs4131_project.model.graphics
+package com.example.cs4131_project.model.graphics.openGL
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -17,27 +13,23 @@ import javax.microedition.khronos.egl.EGLConfig
 class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, val darkTheme: Boolean) : GLSurfaceView.Renderer {
     val backgroundColorPoint = Point.toPoint(background)
     private lateinit var graph: Graph3D
-    private val graphLabels: ArrayList<Graph3DLabel>
+    private lateinit var graphLabels: ArrayList<Graph3DLabel>
     var modelMatrix = FloatArray(16)
-
-    init {
-        val textureIDs = IntArray(6)
-        GLES20.glGenTextures(6, textureIDs, 0)
-
-        graphLabels = arrayListOf(
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(1.0, 0.0, 0.0), false, textureIDs[0], "+x"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(-1.0, 0.0, 0.0), false, textureIDs[1], "-x"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, 1.0), false, textureIDs[2], "+y"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, -1.0), false, textureIDs[3], "-y"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.0, 0.0), true, textureIDs[4], "+z"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, -1.0, 0.0), true, textureIDs[5], "-z")
-        )
-    }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1.0f)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
         graph = Graph3D(graphViewModel, backgroundColorPoint, darkTheme)
+
+        val textureIDs = IntArray(4)
+        GLES20.glGenTextures(4, textureIDs, 0)
+
+        graphLabels = arrayListOf(
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(1.03, 0.0, 0.01), false, textureIDs[0], "x"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, -1.03), false, textureIDs[1], "y"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.03, 0.0), true, textureIDs[2], "z"),
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, 0.0), true, textureIDs[3], "graph", 64f, 4f)
+        )
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {

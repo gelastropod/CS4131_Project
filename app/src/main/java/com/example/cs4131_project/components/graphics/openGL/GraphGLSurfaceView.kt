@@ -1,20 +1,18 @@
-package com.example.cs4131_project.components.graphics
+package com.example.cs4131_project.components.graphics.openGL
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import com.example.cs4131_project.components.graphics.Drawer
 import com.example.cs4131_project.model.graph.Graph3ViewModel
-import com.example.cs4131_project.model.graphics.CubeRenderer
-import com.example.cs4131_project.model.graphics.Graph3DRenderer
+import com.example.cs4131_project.model.graphics.openGL.Graph3DRenderer
 import com.example.cs4131_project.model.utility.Point
 import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point4D

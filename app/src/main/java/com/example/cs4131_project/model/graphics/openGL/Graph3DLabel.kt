@@ -1,4 +1,4 @@
-package com.example.cs4131_project.model.graphics
+package com.example.cs4131_project.model.graphics.openGL
 
 import android.opengl.GLES20
 import android.opengl.Matrix
@@ -22,7 +22,8 @@ class Graph3DLabel(
     vertical: Boolean,
     id: Int,
     text: String,
-    textSize: Float = 64f
+    textSize: Float = 64f,
+    scale: Float = 1.0f
 ) {
     private fun createTextBitmap(text: String, textSize: Float): Bitmap {
         val paint = Paint().apply {
@@ -56,18 +57,18 @@ class Graph3DLabel(
 
     private val vertexData = if (vertical) {
         floatArrayOf(
-            location.x.toFloat() - aspectRatio * 0.1f, location.y.toFloat() + 0.1f, location.z.toFloat(), 0f, 0f,
-            location.x.toFloat() - aspectRatio * 0.1f, location.y.toFloat() - 0.1f, location.z.toFloat(), 0f, 1f,
-            location.x.toFloat() + aspectRatio * 0.1f, location.y.toFloat() - 0.1f, location.z.toFloat(), 1f, 1f,
-            location.x.toFloat() + aspectRatio * 0.1f, location.y.toFloat() + 0.1f, location.z.toFloat(), 1f, 0f
+            location.x.toFloat() - aspectRatio * 0.025f * scale, location.y.toFloat() + 0.025f * scale, location.z.toFloat(), 0f, 0f,
+            location.x.toFloat() - aspectRatio * 0.025f * scale, location.y.toFloat() - 0.025f * scale, location.z.toFloat(), 0f, 1f,
+            location.x.toFloat() + aspectRatio * 0.025f * scale, location.y.toFloat() - 0.025f * scale, location.z.toFloat(), 1f, 1f,
+            location.x.toFloat() + aspectRatio * 0.025f * scale, location.y.toFloat() + 0.025f * scale, location.z.toFloat(), 1f, 0f
         )
     }
     else {
         floatArrayOf(
-            location.x.toFloat() - aspectRatio * 0.1f, location.y.toFloat(), location.z.toFloat() + 0.1f, 0f, 0f,
-            location.x.toFloat() - aspectRatio * 0.1f, location.y.toFloat(), location.z.toFloat() - 0.1f, 0f, 1f,
-            location.x.toFloat() + aspectRatio * 0.1f, location.y.toFloat(), location.z.toFloat() - 0.1f, 1f, 1f,
-            location.x.toFloat() + aspectRatio * 0.1f, location.y.toFloat(), location.z.toFloat() + 0.1f, 1f, 0f
+            location.x.toFloat() - aspectRatio * 0.025f * scale, location.y.toFloat(), location.z.toFloat() + 0.025f * scale, 0f, 1f,
+            location.x.toFloat() - aspectRatio * 0.025f * scale, location.y.toFloat(), location.z.toFloat() - 0.025f * scale, 0f, 0f,
+            location.x.toFloat() + aspectRatio * 0.025f * scale, location.y.toFloat(), location.z.toFloat() - 0.025f * scale, 1f, 0f,
+            location.x.toFloat() + aspectRatio * 0.025f * scale, location.y.toFloat(), location.z.toFloat() + 0.025f * scale, 1f, 1f
         )
     }
 
@@ -152,8 +153,8 @@ class Graph3DLabel(
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id)
 
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST)
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST)
 
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
     }

@@ -1,14 +1,11 @@
 package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.Paint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -20,12 +17,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
-import com.example.cs4131_project.components.graphics.GraphGLSurfaceView
-import com.example.cs4131_project.components.graphics.GraphRenderer2D
+import com.example.cs4131_project.components.graphics.openGL.GraphGLSurfaceView
 import com.example.cs4131_project.components.wrappers.ContentWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.graph.Graph3ViewModel
-import com.example.cs4131_project.model.graph.GraphViewModel
 
 @Composable
 fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph3ViewModel = viewModel(), handler: FirestoreHandler, name: String) {

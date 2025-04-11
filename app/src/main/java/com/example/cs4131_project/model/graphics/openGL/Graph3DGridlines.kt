@@ -1,17 +1,17 @@
-package com.example.cs4131_project.model.graphics
+package com.example.cs4131_project.model.graphics.openGL
 
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log
 import com.example.cs4131_project.model.graph.Graph3ViewModel
-import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
+import java.util.ArrayList
 
-class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point, darkTheme: Boolean) {
+class Graph3DGridlines(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point, darkTheme: Boolean) {
     private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
 
     private val vertexBuffer: FloatBuffer
@@ -51,39 +51,36 @@ class Graph3D(graphViewModel: Graph3ViewModel, backgroundColorPoint: Point, dark
         0f, -1f, 0f,
         0f, 0f, 1f,
         0f, 0f, -1f,
-        -epsilon, 0f, 1f - epsilon,
-        epsilon, 0f, 1f - epsilon,
+        -epsilon, 0f, epsilon - 1f,
+        epsilon, 0f, epsilon - 1f,
         -epsilon, 1f - epsilon, 0f,
         epsilon, 1f - epsilon, 0f,
         1f - epsilon, 0f, -epsilon,
-        1f - epsilon, 0f, epsilon
+        1f - epsilon, 0f, epsilon,
+        -1f, -1f, -1f,
+        -1f, -1f, 1f,
+        -1f, 1f, 1f,
+        -1f, 1f, -1f,
+        1f, 1f, -1f,
+        1f, -1f, -1f,
+        1f, -1f, 1f,
+        1f, 1f, 1f
     )
 
-    private val colors = floatArrayOf(
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f,
-        lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f
-    )
+    private val colors = ArrayList(List(vertices.size / 3) {
+        arrayListOf(
+            lineColorPoint.x.toFloat(), lineColorPoint.y.toFloat(), lineColorPoint.z.toFloat(), 1f
+        )
+    }.flatten()).toFloatArray()
 
     private val indices = shortArrayOf(
-        0, 1,
-        2, 3,
-        4, 5,
-        4, 6,
-        4, 7,
-        2, 8,
-        2, 9,
-        0, 10,
-        0, 11
+        0, 1, 2, 3, 4, 5,
+        5, 6, 5, 7, 2, 8,
+        2, 9, 0, 10, 0, 11,
+        12, 13, 12, 15, 12, 17,
+        14, 15, 14, 13, 14, 19,
+        16, 19, 16, 17, 16, 15,
+        18, 17, 18, 19, 18, 13
     )
 
     init {

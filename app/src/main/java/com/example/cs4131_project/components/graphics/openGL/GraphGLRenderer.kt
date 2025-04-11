@@ -1,4 +1,4 @@
-package com.example.cs4131_project.components.graphics
+package com.example.cs4131_project.components.graphics.openGL
 
 import android.graphics.Paint
 import javax.microedition.khronos.egl.EGLConfig
