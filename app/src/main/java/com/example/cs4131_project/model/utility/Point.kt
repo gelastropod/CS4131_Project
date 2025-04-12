@@ -5,6 +5,7 @@ import android.graphics.Color.blue
 import android.graphics.Color.green
 import android.graphics.Color.red
 import android.graphics.Paint
+import kotlin.math.abs
 import kotlin.math.sqrt
 import androidx.compose.ui.graphics.Color as Color2
 
@@ -87,5 +88,13 @@ data class Point(val x: Double, val y: Double, val z: Double) {
             this.textSize = textSize
             isAntiAlias = true
         }
+    }
+
+    fun toList(): List<Float> {
+        return listOf(x.toFloat(), y.toFloat(), z.toFloat(), 1f)
+    }
+
+    fun equals(other: Point): Boolean {
+        return abs(x - other.x) < 0.01 && abs(y - other.y) < 0.01 && abs(z - other.z) < 0.01
     }
 }

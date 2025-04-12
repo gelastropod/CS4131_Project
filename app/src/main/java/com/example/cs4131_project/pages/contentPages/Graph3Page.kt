@@ -1,6 +1,7 @@
 package com.example.cs4131_project.pages.contentPages
 
 import android.graphics.Paint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +47,8 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
     val expandedState = remember{mutableStateOf(false)}
+    var zoomScene by remember{mutableStateOf(true)}
+    var centering by remember { mutableStateOf(false) }
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {
@@ -58,12 +62,30 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
                             navController.navigate("equationEditor3Page/$mode/$name")
                         }
                     ))
+                    add(
+                        MiniFabItems(
+                            icon = painterResource(R.drawable.magnify_plus),
+                            title = "Change zoom mode",
+                            onClick = {
+                                zoomScene = !zoomScene
+                            }
+                        )
+                    )
                 }),
                 expandedState
             ) {expandedState.value = it}
         },
         originalName = name,
-        handler = handler
+        handler = handler,
+        topBarContent = {
+            IconButton(
+                onClick = {
+                    centering = true
+                }
+            ) {
+                Icon(painter = painterResource(R.drawable.home), contentDescription = "")
+            }
+        }
     ) {
         Box(modifier = Modifier
             .fillMaxSize()
@@ -75,10 +97,14 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
                 factory = { context ->
                     GraphGLSurfaceView(context, Paint().apply {
                         color = backgroundColor.toArgb()
-                    }, graphViewModel, MainActivity.darkTheme)
+                    }, graphViewModel, MainActivity.darkTheme, zoomScene, centering)
                 },
                 update = { view ->
-
+                    view.zoomScene = zoomScene
+                    if (centering) {
+                        view.centering = centering
+                        centering = false
+                    }
                 }
             )
         }

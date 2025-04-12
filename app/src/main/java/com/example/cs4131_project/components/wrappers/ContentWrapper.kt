@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,7 +69,7 @@ fun writeDataToFile(context: Context, uri: Uri, data: String) {
 }
 
 @Composable
-fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable (defaults: ArrayList<MiniFabItems>) -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, originalName: String, backRoute: String = "dashboardPage", content: @Composable () -> Unit) {
+fun ContentWrapper(navController: NavController, title: String, selectedState: Int = -1, floatingActionButton: @Composable (defaults: ArrayList<MiniFabItems>) -> Unit = {}, menuItems: @Composable ColumnScope.(expanded: MutableState<Boolean>) -> Unit = {}, mode: String, graphViewModel: GraphViewModel? = null, handler: FirestoreHandler, originalName: String, backRoute: String = "dashboardPage", topBarContent: @Composable () -> Unit = {}, content: @Composable () -> Unit) {
     val expandedState = remember {mutableStateOf(false)}
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
@@ -138,23 +139,29 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                     .padding(10.dp),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(
-                    onClick = {
-                        expandedState.value = false
-
-                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                            addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TITLE, originalName)
-                        }
-                        exportFilePickerLauncher.launch(intent)
-                    },
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.export),
-                        contentDescription = "Overflow Menu"
-                    )
+                    topBarContent()
+                    IconButton(
+                        onClick = {
+                            expandedState.value = false
+
+                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TITLE, originalName)
+                            }
+                            exportFilePickerLauncher.launch(intent)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.export),
+                            contentDescription = "Overflow Menu"
+                        )
+                    }
                 }
                 Text(
                     text = title,

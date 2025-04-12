@@ -14,11 +14,15 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
     val backgroundColorPoint = Point.toPoint(background)
     private lateinit var graph: Graph3D
     private lateinit var graphLabels: ArrayList<Graph3DLabel>
+    lateinit var graphGridlines: Graph3DGridlines
+    var initialized = false
     var modelMatrix = FloatArray(16)
+    var innerScale = 1f
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1.0f)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+
         graph = Graph3D(graphViewModel, backgroundColorPoint, darkTheme)
 
         val textureIDs = IntArray(4)
@@ -30,6 +34,10 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
             Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.03, 0.0), true, textureIDs[2], "z"),
             Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, 0.0), true, textureIDs[3], "graph", 64f, 4f)
         )
+
+        graphGridlines = Graph3DGridlines(graphViewModel, backgroundColorPoint, darkTheme)
+
+        initialized = true
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -40,6 +48,8 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
         for (graphLabel in graphLabels) {
             Matrix.frustumM(graphLabel.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
         }
+
+        Matrix.frustumM(graphGridlines.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -57,5 +67,11 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
         for (graphLabel in graphLabels) {
             graphLabel.draw(modelMatrix)
         }
+
+        val scaledModelMatrix = modelMatrix.copyOf()
+
+        graphGridlines.draw(scaledModelMatrix.also {
+            Matrix.scaleM(it, 0, innerScale * 0.1f, innerScale * 0.1f, innerScale * 0.1f)
+        })
     }
 }

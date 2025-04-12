@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +65,16 @@ fun GraphPage(navController: NavController, mode: String, graphViewModel: GraphV
             )
         },
         originalName = name,
-        handler = handler
+        handler = handler,
+        topBarContent = {
+            IconButton(
+                onClick = {
+                    renderer.recenter()
+                }
+            ) {
+                Icon(painter = painterResource(R.drawable.home), contentDescription = "")
+            }
+        }
     ) {
         Box(modifier = Modifier
             .fillMaxSize()
