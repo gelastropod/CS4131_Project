@@ -7,17 +7,77 @@ import android.opengl.Matrix
 import android.util.Log
 import com.example.cs4131_project.model.graph.Graph3ViewModel
 import com.example.cs4131_project.model.utility.Point
+import com.google.common.graph.Graph
 import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.egl.EGLConfig
+import kotlin.math.sin
 
 class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, val darkTheme: Boolean) : GLSurfaceView.Renderer {
     val backgroundColorPoint = Point.toPoint(background)
     private lateinit var graph: Graph3D
     private lateinit var graphLabels: ArrayList<Graph3DLabel>
+    lateinit var graphSurface: Graph3DSurface
+    private var graphNumLabels = arrayListOf<Graph3DLabel>()
     lateinit var graphGridlines: Graph3DGridlines
     var initialized = false
     var modelMatrix = FloatArray(16)
     var innerScale = 1f
+    private val textureIDs = IntArray(1000)
+    private var generatingLabels = false
+
+    fun generateLabels() {
+        generatingLabels = true
+
+        val newGraphNumLabels = arrayListOf<Graph3DLabel>()
+
+        var textureIndex = 3
+        val power10 = Math.pow(10.0, graphViewModel.power10.toDouble())
+
+        val numSpacesX = (graphViewModel.size.x / graphViewModel.minorSpace.x / power10).toInt()
+        val numSpacesZ = (graphViewModel.size.z / graphViewModel.minorSpace.z / power10).toInt()
+
+        for (i in -numSpacesX..numSpacesX) {
+            val isMajor = i % graphViewModel.majorSpace.x.toInt() == 0
+            if (!isMajor) continue
+
+            newGraphNumLabels.add(
+                Graph3DLabel(
+                    graphViewModel,
+                    backgroundColorPoint,
+                    darkTheme,
+                    Point(i * graphViewModel.minorSpace.x * power10, 0.0, 0.0),
+                    false,
+                    textureIDs[textureIndex],
+                    "a",
+                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 50f
+                )
+            )
+            textureIndex++
+        }
+
+        for (i in -numSpacesZ..numSpacesZ) {
+            val isMajor = i % graphViewModel.majorSpace.z.toInt() == 0
+            if (!isMajor) continue
+
+            newGraphNumLabels.add(
+                Graph3DLabel(
+                    graphViewModel,
+                    backgroundColorPoint,
+                    darkTheme,
+                    Point(0.0, 0.0, i * graphViewModel.minorSpace.z * power10),
+                    false,
+                    textureIDs[textureIndex],
+                    "a",
+                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 50f
+                )
+            )
+            textureIndex++
+        }
+
+        graphNumLabels = newGraphNumLabels
+
+        generatingLabels = false
+    }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES20.glClearColor(backgroundColorPoint.x.toFloat(), backgroundColorPoint.y.toFloat(), backgroundColorPoint.z.toFloat(), 1.0f)
@@ -25,14 +85,14 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
 
         graph = Graph3D(graphViewModel, backgroundColorPoint, darkTheme)
 
-        val textureIDs = IntArray(4)
-        GLES20.glGenTextures(4, textureIDs, 0)
+        graphSurface = Graph3DSurface(graphViewModel, backgroundColorPoint, darkTheme)
+
+        GLES20.glGenTextures(1000, textureIDs, 0)
 
         graphLabels = arrayListOf(
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(1.03, 0.0, 0.01), false, textureIDs[0], "x"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, -1.03), false, textureIDs[1], "y"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.03, 0.0), true, textureIDs[2], "z"),
-            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, 0.0), true, textureIDs[3], "graph", 64f, 4f)
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(1.03, 0.0, 0.01), false, textureIDs[0], "x").apply{initialize()},
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 0.0, -1.03), false, textureIDs[1], "y").apply{initialize()},
+            Graph3DLabel(graphViewModel, backgroundColorPoint, darkTheme, Point(0.0, 1.03, 0.0), true, textureIDs[2], "z").apply{initialize()}
         )
 
         graphGridlines = Graph3DGridlines(graphViewModel, backgroundColorPoint, darkTheme)
@@ -41,15 +101,24 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        generatingLabels = true
+
         GLES20.glViewport(0, 0, width, height)
         val ratio = width.toFloat() / height
         Matrix.frustumM(graph.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+        Matrix.frustumM(graphSurface.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
 
         for (graphLabel in graphLabels) {
             Matrix.frustumM(graphLabel.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
         }
 
+        for (graphLabel in graphNumLabels) {
+            Matrix.frustumM(graphLabel.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+        }
+
         Matrix.frustumM(graphGridlines.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+
+        generatingLabels = false
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -64,14 +133,23 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         graph.draw(modelMatrix)
 
-        for (graphLabel in graphLabels) {
-            graphLabel.draw(modelMatrix)
+        val scaledModelMatrix = modelMatrix.copyOf().also {
+            Matrix.scaleM(it, 0, innerScale * 0.1f, innerScale * 0.1f, innerScale * 0.1f)
         }
 
-        val scaledModelMatrix = modelMatrix.copyOf()
+        graphGridlines.draw(scaledModelMatrix)
 
-        graphGridlines.draw(scaledModelMatrix.also {
-            Matrix.scaleM(it, 0, innerScale * 0.1f, innerScale * 0.1f, innerScale * 0.1f)
-        })
+        graphSurface.draw(scaledModelMatrix)
+
+        for (graphLabel in graphLabels) {
+            graphLabel.draw(modelMatrix, innerScale)
+        }
+
+        if (!generatingLabels) {
+            for (graphLabel in graphNumLabels) {
+                graphLabel.initialize()
+                graphLabel.draw(scaledModelMatrix, innerScale)
+            }
+        }
     }
 }

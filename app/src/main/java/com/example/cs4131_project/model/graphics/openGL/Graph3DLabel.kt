@@ -20,7 +20,7 @@ class Graph3DLabel(
     darkTheme: Boolean,
     location: Point,
     vertical: Boolean,
-    id: Int,
+    val id: Int,
     text: String,
     textSize: Float = 64f,
     scale: Float = 1.0f
@@ -86,9 +86,11 @@ class Graph3DLabel(
         attribute vec4 a_Position;
         attribute vec2 a_TexCoord;
         varying vec2 v_TexCoord;
+        varying vec4 vWorldPos;
         void main() {
             gl_Position = uMVPMatrix * a_Position;
             v_TexCoord = a_TexCoord;
+            vWorldPos = a_Position;
         }
     """
 
@@ -96,29 +98,54 @@ class Graph3DLabel(
         precision mediump float;
         uniform sampler2D u_Texture;
         varying vec2 v_TexCoord;
+        varying vec4 vWorldPos;
+        uniform float uScale;
         void main() {
+            vec4 scaledPos = vWorldPos * uScale;  // Use a local variable
+            if (abs(scaledPos.x) > 1.01 || abs(scaledPos.y) > 1.01 || abs(scaledPos.z) > 1.01) {
+                discard;
+            }
             gl_FragColor = texture2D(u_Texture, v_TexCoord);
         }
     """
 
-    private val program: Int = GLES20.glCreateProgram().also {
-        val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+    private var initialized = false
 
-        GLES20.glAttachShader(it, vertexShader)
-        GLES20.glAttachShader(it, fragmentShader)
-        GLES20.glLinkProgram(it)
+    private var program: Int = 0
+    private var textureId: Int = 0
+
+    fun initialize() {
+        if (initialized) return
+
+        program = GLES20.glCreateProgram().also {
+            val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
+            val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
+
+            GLES20.glAttachShader(it, vertexShader)
+            GLES20.glAttachShader(it, fragmentShader)
+            GLES20.glLinkProgram(it)
+        }
+
+        textureId = id.also{loadTexture(bitmap, it)}
+
+        initialized = true
+
+
+        Log.e("AAA", "AAA")
     }
 
-    private val textureId: Int = id.also{loadTexture(bitmap, it)}
+    fun draw(modelMatrix: FloatArray, scale: Float) {
+        if (!initialized) return
 
-    fun draw(modelMatrix: FloatArray) {
         GLES20.glUseProgram(program)
 
         val positionHandle = GLES20.glGetAttribLocation(program, "a_Position")
         val texCoordHandle = GLES20.glGetAttribLocation(program, "a_TexCoord")
         val mvpMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix")
         val textureHandle = GLES20.glGetUniformLocation(program, "u_Texture")
+
+        val scaleHandle = GLES20.glGetUniformLocation(program, "uScale")
+        GLES20.glUniform1f(scaleHandle, scale * 0.1f)
 
         vertexBuffer.position(0)
         GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 5 * 4, vertexBuffer)
@@ -144,7 +171,7 @@ class Graph3DLabel(
     }
 
     private fun loadTexture(bitmap: Bitmap, id: Int) {
-        Log.e("AAA", id.toString())
+        //Log.e("AAA", id.toString())
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id)
 

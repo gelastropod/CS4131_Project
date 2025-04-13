@@ -48,7 +48,7 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
     val backgroundColor = MaterialTheme.colorScheme.background
     val expandedState = remember{mutableStateOf(false)}
     var zoomScene by remember{mutableStateOf(true)}
-    var centering by remember { mutableStateOf(false) }
+    var centering by remember { mutableStateOf(true) }
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {

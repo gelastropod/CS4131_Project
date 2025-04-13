@@ -19,7 +19,7 @@ import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point4D
 import kotlin.math.abs
 
-class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel: Graph3ViewModel, darkTheme: Boolean, var zoomScene: Boolean, var centering: Boolean) : GLSurfaceView(context) {
+class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel: Graph3ViewModel, darkTheme: Boolean, var zoomScene: Boolean, var centering: Boolean = true) : GLSurfaceView(context) {
     private val renderer: Graph3DRenderer
     private val drawer = Drawer(Canvas())
     private var modelMatrix = FloatArray(16)
@@ -41,7 +41,7 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
 
     private val updateRunnable = object : Runnable {
         override fun run() {
-            Log.e("AAA", "${graphViewModel.size} $azimuth $elevation $scale ${renderer.innerScale} ${graphViewModel.power10}")
+            //Log.e("AAA", "${graphViewModel.size} $azimuth $elevation $scale ${renderer.innerScale} ${graphViewModel.power10}")
 
             if (centering) {
                 graphViewModel.size += (Point(10.5, 10.5, 10.5) - graphViewModel.size) * 0.3
@@ -49,8 +49,10 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                 elevation *= 0.7f
                 scale += (1f - scale) * 0.3f
                 renderer.innerScale += (1f - renderer.innerScale) * 0.3f
-                if (renderer.initialized)
+                if (renderer.initialized) {
                     renderer.graphGridlines.scale = renderer.innerScale
+                    renderer.graphSurface.scale = renderer.innerScale
+                }
                 if (graphViewModel.power10 == -1 && graphViewModel.size.equals(Point(10.5, 10.5, 10.5)) && abs(renderer.innerScale - 1f) < 0.01f && abs(azimuth) < 0.01f && abs(elevation) < 0.01f && abs(scale - 1f) < 0.01f) {
                     centering = false
                 }
@@ -63,20 +65,29 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                     1 -> {
                         graphViewModel.minorSpace *= 2.0
                         renderer.innerScale /= 4f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                     2 -> {
                         graphViewModel.minorSpace *= 2.5
                         graphViewModel.majorSpace *= 0.8
                         renderer.innerScale /= 2.5f * 2.5f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                     5 -> {
                         graphViewModel.minorSpace /= 5.0
                         graphViewModel.majorSpace *= 1.25
                         graphViewModel.power10++
                         renderer.innerScale /= 4f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                 }
                 numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
@@ -89,29 +100,43 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         graphViewModel.majorSpace *= 0.8
                         graphViewModel.power10--
                         renderer.innerScale *= 4f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                     2 -> {
                         graphViewModel.minorSpace /= 2.0
                         renderer.innerScale *= 4f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                     5 -> {
                         graphViewModel.minorSpace /= 2.5
                         graphViewModel.majorSpace *= 1.25
                         renderer.innerScale *= 2.5f * 2.5f
-                        if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+                        if (renderer.initialized) {
+                            renderer.graphGridlines.scale = renderer.innerScale
+                            renderer.graphSurface.scale = renderer.innerScale
+                        }
                     }
                 }
                 numSpaces = graphViewModel.size / graphViewModel.minorSpace / Math.pow(10.0, graphViewModel.power10.toDouble())
             }
 
             if (updated && renderer.initialized) {
+                renderer.generateLabels()
                 renderer.graphGridlines.generateGrid()
+                renderer.graphSurface.generateSurfaceMesh()
                 updated = false
             }
 
-            if (renderer.initialized) renderer.graphGridlines.scale = renderer.innerScale
+            if (renderer.initialized) {
+                renderer.graphGridlines.scale = renderer.innerScale
+                renderer.graphSurface.scale = renderer.innerScale
+            }
 
             modelMatrix.also {
                 Matrix.setIdentityM(it, 0)

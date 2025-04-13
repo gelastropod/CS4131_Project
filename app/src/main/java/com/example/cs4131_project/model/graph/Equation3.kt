@@ -38,7 +38,7 @@ data class Equation3(var color: Point, var equationString: String, val precision
                 .replace("{", "(")
         }
 
-        private fun parseLatexToFunction(latex: String): (Double, Double) -> Double? {
+        fun parseLatexToFunction(latex: String): (Double, Double) -> Double? {
             Log.i("AAA", latex)
             val mathExpression = latexToMath(latex)
 
