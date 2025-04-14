@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.noToolbarPages
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
+import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
@@ -100,6 +102,10 @@ fun SignInPage(navController: NavController, handler: FirestoreHandler) {
 
                     GlobalDatastore.username.value = username
                     GlobalDatastore.updatePreferences()
+
+                    Log.e("AAA", "AAA")
+
+                    MainActivity.sendNotification(context, getString(context, R.string.signInPage7), getString(context, R.string.signInPage8))
 
                     when (handler.data[username]?.usage) {
                         "personal" -> {

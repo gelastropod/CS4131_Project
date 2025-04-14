@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.navigation.NavController
+import com.example.cs4131_project.MainActivity
 import com.example.cs4131_project.R
 import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
@@ -56,6 +57,9 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                             GlobalDatastore.updatePreferences()
 
                             navController.navigate("personalDashboardPage")
+
+                            Log.e("AAA", "AAA")
+                            MainActivity.sendNotification(context, getString(context, R.string.signUpPage13), getString(context, R.string.signUpPage14))
                         }
                     ) {
                         Box(
@@ -79,6 +83,8 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                             GlobalDatastore.updatePreferences()
 
                             navController.navigate("studentDashboardPage")
+
+                            MainActivity.sendNotification(context, getString(context, R.string.signUpPage13), getString(context, R.string.signUpPage14))
                         }
                     ) {
                         Box(
@@ -102,6 +108,8 @@ fun ModeChoosePage(navController: NavController, handler: FirestoreHandler, user
                         GlobalDatastore.updatePreferences()
 
                         navController.navigate("teacherDashboardPage")
+
+                        MainActivity.sendNotification(context, getString(context, R.string.signUpPage13), getString(context, R.string.signUpPage14))
                     }
                 ) {
                     Box(

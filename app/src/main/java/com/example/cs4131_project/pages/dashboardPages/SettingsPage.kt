@@ -159,6 +159,8 @@ fun SettingsPage(navController: NavController, mode: String, handler: FirestoreH
                                     GlobalDatastore.username.value = ""
                                     GlobalDatastore.updatePreferences()
 
+                                    MainActivity.sendNotification(context, getString(context, R.string.settingsPage8), getString(context, R.string.settingsPage9))
+
                                     navController.navigate("homePage")
                                 }
                             ) {

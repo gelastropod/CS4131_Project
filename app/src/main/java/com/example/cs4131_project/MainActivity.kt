@@ -4,22 +4,28 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +64,37 @@ import com.example.cs4131_project.pages.dashboardPages.TeacherDashboardPage
 import com.example.cs4131_project.pages.misc.RedirectPage
 import com.example.cs4131_project.pages.noToolbarPages.ModeChoosePage
 import com.google.firebase.firestore.FirebaseFirestore
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getString
+
+@Composable
+fun RequestNotificationPermission() {
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast.makeText(context, getString(context, R.string.mainActivity1), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, getString(context, R.string.mainActivity2), Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+}
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -69,6 +106,38 @@ class MainActivity : ComponentActivity() {
         var dynamicColorState = mutableStateOf(false)
         var dynamicColor: Boolean = false
             get() = dynamicColorState.value
+        var channelID = 0
+
+        fun createNotificationChannel(context: Context) {
+            val name = "MyChannel"
+            val descriptionText = "My notification channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("my_channel_id", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        fun sendNotification(context: Context, title: String, content: String) {
+            val builder = NotificationCompat.Builder(context, "my_channel_id")
+                .setSmallIcon(R.drawable.app_icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+            with(NotificationManagerCompat.from(context)) {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    notify(channelID, builder.build())
+                }
+            }
+        }
     }
 
     private fun isSystemInDarkMode(context: Context): Boolean {
@@ -126,6 +195,12 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
     var showOnboarding by remember {mutableStateOf(MainActivity.sharedPreferences.getBoolean("showOnboarding", true))}
     val graphViewModel: GraphViewModel = viewModel()
     val graph3ViewModel: Graph3ViewModel = viewModel()
+
+    RequestNotificationPermission()
+
+    LaunchedEffect(Unit) {
+        MainActivity.createNotificationChannel(context)
+    }
 
     NavHost(
         navController = navController,

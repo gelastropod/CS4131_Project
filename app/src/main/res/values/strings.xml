@@ -188,4 +188,12 @@
     <string name="homePage8">Sample 2D graph 2</string>
     <string name="contentWrapper17">Existing item with the same name will be overrided!</string>
     <string name="equationEditor3Page1">Done</string>
+    <string name="signInPage7">Sign In</string>
+    <string name="signInPage8">Sign in successful!</string>
+    <string name="signUpPage13">Sign Up</string>
+    <string name="signUpPage14">Sign up successful!</string>
+    <string name="mainActivity1">Notification permission granted!</string>
+    <string name="mainActivity2">Notification permission not granted!</string>
+    <string name="settingsPage8">Reset Data</string>
+    <string name="settingsPage9">User data has been reset!</string>
 </resources>
