@@ -1,5 +1,6 @@
 package com.example.cs4131_project.pages.misc
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -76,6 +77,8 @@ fun RedirectPage(navController: NavController, originalName: String, fileContent
                             getString(context, R.string.dashboardWrapper14),
                             Toast.LENGTH_SHORT
                         ).show()
+                        Log.e("AAA", fileContent)
+                        e.message?.let { Log.e("AAA", it) }
                     }
                 }
             ) {

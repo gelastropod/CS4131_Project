@@ -149,6 +149,8 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                         onClick = {
                             expandedState.value = false
 
+                            handler.save()
+
                             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                                 addCategory(Intent.CATEGORY_OPENABLE)
                                 type = "text/plain"

@@ -139,11 +139,13 @@ fun DashboardWrapper(
             val uri: Uri? = result.data?.data
             uri?.let {
                 val fileContent = readFileContent(context, it)
+                Log.e("AAA", fileContent)
                 var fileName = getFileName(context, it)
                 if (fileName.endsWith(".txt"))
                     fileName = fileName.substring(0, fileName.length - 4)
 
-                navController.navigate("redirectPage/$fileName/$fileContent")
+                val encodedContent = Uri.encode(fileContent)
+                navController.navigate("redirectPage/$fileName/$encodedContent")
             }
         }
     }

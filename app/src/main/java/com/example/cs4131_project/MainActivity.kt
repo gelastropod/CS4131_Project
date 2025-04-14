@@ -69,6 +69,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -347,8 +348,8 @@ fun MainApp(resources: Resources, context: Context, handler: FirestoreHandler) {
             )
         ) { backStackEntry ->
             val fileName = backStackEntry.arguments?.getString("fileName")
-            val fileContent = backStackEntry.arguments?.getString("fileContent")
-            if (fileName != null && fileContent != null) {
+            val fileContent = Uri.decode(backStackEntry.arguments?.getString("fileContent") ?: "")
+            if (fileName != null) {
                 RedirectPage(navController, fileName, fileContent, handler)
             }
         }
