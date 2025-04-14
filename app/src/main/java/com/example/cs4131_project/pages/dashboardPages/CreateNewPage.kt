@@ -79,7 +79,7 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(10.dp),
+                            .padding(5.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -112,7 +112,7 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(10.dp),
+                            .padding(5.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -225,6 +225,7 @@ fun CreateNewPage(navController: NavController, mode: String, handler: Firestore
                             }
                             else {
                                 graph3ViewModel.equation.value = Equation3("", Point(1.0, 0.5, 0.5))
+                                graph3ViewModel.quality = 1
                                 navController.navigate("graph3Page/$mode/$name")
                             }
                         }

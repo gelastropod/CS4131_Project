@@ -21,4 +21,5 @@ class Graph3ViewModel : ViewModel() {
     var minorSpace by mutableStateOf(Point(1.0, 1.0, 1.0))
     var majorSpace by mutableStateOf(Point(5.0, 5.0, 5.0))
     var screenSpace by mutableStateOf(Point2D(0.0, 0.0))
+    var quality by mutableStateOf(1)
 }

@@ -2,6 +2,7 @@ package com.example.cs4131_project.model.graphics.openGL
 
 import android.opengl.GLES20
 import android.opengl.Matrix
+import android.renderscript.Matrix4f
 import android.util.Log
 import com.example.cs4131_project.model.graph.Equation3
 import com.example.cs4131_project.model.graph.Graph3ViewModel
@@ -11,12 +12,15 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.ShortBuffer
 import java.util.ArrayList
+import kotlin.math.min
 
 class Graph3DSurface(
     val graphViewModel: Graph3ViewModel,
     val backgroundColorPoint: Point,
     darkTheme: Boolean,
-    val equation: Equation3 = graphViewModel.equation.value
+    val equation: Equation3 = graphViewModel.equation.value,
+    var quality: Float,
+    otherScale: Float
 ) {
     private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
 
@@ -41,9 +45,11 @@ class Graph3DSurface(
         varying vec3 vNormal;
         varying vec3 vFragPos;
         varying vec4 vWorldPos;
+        varying vec4 vOriginalPosition;
         
         void main() {
             vWorldPos = uModelMatrix * vPosition;
+            vOriginalPosition = vPosition;
             gl_Position = uMVPMatrix * vPosition;
         
             vColor = aColor;
@@ -59,12 +65,17 @@ class Graph3DSurface(
         varying vec3 vNormal;
         varying vec3 vFragPos;
         varying vec4 vWorldPos;
+        varying vec4 vOriginalPosition;
         
         uniform float uScale;
+        uniform vec3 uCameraPosObject;
         
         void main() {
-            vec4 scaledPos = vWorldPos * uScale;
+            vec4 debugColor = vColor;
+        
+            vec4 scaledPos = vOriginalPosition * uScale;
             if (abs(scaledPos.x) > 1.0 || abs(scaledPos.y) > 1.0 || abs(scaledPos.z) > 1.0) {
+                debugColor = vec4(0.0, 0.0, 0.0, 1.0);
                 discard;
             }
         
@@ -76,15 +87,15 @@ class Graph3DSurface(
             vec3 halfDir = normalize(lightDir + viewDir);
         
             float diff = max(dot(-norm, lightDir), 0.0);
-            float spec = pow(max(dot(-norm, halfDir), 0.0), 32.0) * 0.5;
+            float spec = pow(max(dot(-norm, halfDir), 0.0), 32.0) * 0.25;
         
-            vec3 ambient = 0.2 * vColor.rgb;
-            vec3 diffuse = diff * vColor.rgb;
+            vec3 ambient = 0.2 * debugColor.rgb;
+            vec3 diffuse = diff * debugColor.rgb;
             vec3 specular = spec * vec3(1.0);
         
             vec3 result = ambient + diffuse + specular;
         
-            gl_FragColor = vec4(result, vColor.a);
+            gl_FragColor = vec4(result, debugColor.a);
         }
     """
 
@@ -92,7 +103,7 @@ class Graph3DSurface(
     private var vertexCount = 0
 
     init {
-        generateSurfaceMesh()
+        generateSurfaceMesh(otherScale)
 
         val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
         val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
@@ -140,7 +151,9 @@ class Graph3DSurface(
 
     private lateinit var indexBuffer: ShortBuffer
 
-    fun generateSurfaceMesh() {
+    fun generateSurfaceMesh(otherScale: Float) {
+        Log.e("rege", "💩")
+
         val vertexMap = mutableMapOf<String, Int>()
         val vertexList = mutableListOf<FloatArray>()
         val normalSums = mutableListOf<FloatArray>()
@@ -148,10 +161,12 @@ class Graph3DSurface(
         val color = floatArrayOf(0.1f, 0.6f, 1.0f, 1.0f)
 
         val power10 = Math.pow(10.0, graphViewModel.power10.toDouble()).toFloat()
-        val stepX = graphViewModel.minorSpace.x.toFloat() * power10
-        val stepZ = graphViewModel.minorSpace.z.toFloat() * power10
-        val halfWidth = graphViewModel.size.x.toFloat()
-        val halfDepth = graphViewModel.size.z.toFloat()
+        val stepX = graphViewModel.minorSpace.x.toFloat() * power10 * quality * 0.75f * otherScale / scale
+        val stepZ = graphViewModel.minorSpace.z.toFloat() * power10 * quality * 0.75f * otherScale / scale
+        val halfWidth = graphViewModel.size.x.toFloat() * otherScale / scale
+        val halfDepth = graphViewModel.size.z.toFloat() * otherScale / scale
+
+        Log.e("rege", "$halfWidth $halfDepth")
 
         val numStepsX = (halfWidth / stepX).toInt()
         val numStepsZ = (halfDepth / stepZ).toInt()
@@ -265,7 +280,14 @@ class Graph3DSurface(
         val scaleHandle = GLES20.glGetUniformLocation(program, "uScale")
         GLES20.glUniform1f(scaleHandle, scale * 0.1f)
 
-        Log.e("AAA", (scale * 0.1f).toString())
+        val cameraPosHandle = GLES20.glGetUniformLocation(program, "uCameraPosObject")
+        val inverseModelMatrix = FloatArray(16)
+        Matrix.invertM(inverseModelMatrix, 0, modelMatrix, 0)
+        val cameraObjectSpace = FloatArray(4)
+        Matrix.multiplyMV(cameraObjectSpace, 0, inverseModelMatrix, 0, floatArrayOf(0f, 0f, 0f, 1f), 0)
+        GLES20.glUniform3f(cameraPosHandle, cameraObjectSpace[0], cameraObjectSpace[1], cameraObjectSpace[2])
+
+        //Log.e("AAA", (scale * 0.1f).toString())
 
         val modelMatrixHandle = GLES20.glGetUniformLocation(program, "uModelMatrix")
         GLES20.glUniformMatrix4fv(modelMatrixHandle, 1, false, modelMatrix, 0)
@@ -299,7 +321,7 @@ class Graph3DSurface(
         if (compileStatus[0] == 0) {
             val error = GLES20.glGetShaderInfoLog(shader)
             GLES20.glDeleteShader(shader)
-            Log.e("OpenGL", error)
+            Log.e("Shader", error)
         }
 
         return shader

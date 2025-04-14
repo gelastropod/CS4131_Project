@@ -105,7 +105,9 @@ class Graph3DLabel(
             if (abs(scaledPos.x) > 1.01 || abs(scaledPos.y) > 1.01 || abs(scaledPos.z) > 1.01) {
                 discard;
             }
-            gl_FragColor = texture2D(u_Texture, v_TexCoord);
+            vec4 fragColor = texture2D(u_Texture, v_TexCoord);
+            if (fragColor.a < 0.01) discard;
+            gl_FragColor = fragColor;
         }
     """
 

@@ -49,19 +49,13 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
     val expandedState = remember{mutableStateOf(false)}
     var zoomScene by remember{mutableStateOf(true)}
     var centering by remember { mutableStateOf(true) }
+    var quality by remember{mutableStateOf(graphViewModel.quality)}
 
     ContentWrapper(navController, getString(context, R.string.graphPageTitle), mode = mode,
         floatingActionButton = {
             ExpandableFAB(
                 ArrayList(buildList {
                     addAll(it)
-                    add(MiniFabItems(
-                        icon = painterResource(R.drawable.function_variant),
-                        title = "Equation",
-                        onClick = {
-                            navController.navigate("equationEditor3Page/$mode/$name")
-                        }
-                    ))
                     add(
                         MiniFabItems(
                             icon = painterResource(R.drawable.magnify_plus),
@@ -71,6 +65,45 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
                             }
                         )
                     )
+                    add(
+                        MiniFabItems(
+                            icon = painterResource(
+                                when(quality) {
+                                    1 -> R.drawable.quality_high
+                                    2 -> R.drawable.quality_medium
+                                    4 -> R.drawable.quality_low
+                                    else -> R.drawable.quality_high
+                                }),
+                            title = "Graph quality: " + when(quality) {
+                                1 -> "High"
+                                2 -> "Medium"
+                                4 -> "Low"
+                                else -> "High"
+                            },
+                            onClick = {
+                                quality = when(quality) {
+                                    1 -> 2
+                                    2 -> 4
+                                    4 -> 1
+                                    else -> 1
+                                }
+                                graphViewModel.quality = quality
+
+                                handler.unsaved = true
+
+                                val key =
+                                    if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
+                                handler.unsavedData[key]?.savedData?.get(name)?.graph3Item?.quality = quality
+                            }
+                        )
+                    )
+                    add(MiniFabItems(
+                        icon = painterResource(R.drawable.function_variant),
+                        title = "Equation",
+                        onClick = {
+                            navController.navigate("equationEditor3Page/$mode/$name")
+                        }
+                    ))
                 }),
                 expandedState
             ) {expandedState.value = it}
@@ -97,10 +130,11 @@ fun Graph3Page(navController: NavController, mode: String, graphViewModel: Graph
                 factory = { context ->
                     GraphGLSurfaceView(context, Paint().apply {
                         color = backgroundColor.toArgb()
-                    }, graphViewModel, MainActivity.darkTheme, zoomScene, centering)
+                    }, graphViewModel, MainActivity.darkTheme, zoomScene, centering, quality)
                 },
                 update = { view ->
                     view.zoomScene = zoomScene
+                    view.setQualityValue(quality)
                     if (centering) {
                         view.centering = centering
                         centering = false

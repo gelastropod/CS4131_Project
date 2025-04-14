@@ -12,13 +12,14 @@ import javax.microedition.khronos.opengles.GL10
 import javax.microedition.khronos.egl.EGLConfig
 import kotlin.math.sin
 
-class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, val darkTheme: Boolean) : GLSurfaceView.Renderer {
+class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, val darkTheme: Boolean, var quality: Int) : GLSurfaceView.Renderer {
     val backgroundColorPoint = Point.toPoint(background)
     private lateinit var graph: Graph3D
     private lateinit var graphLabels: ArrayList<Graph3DLabel>
     lateinit var graphSurface: Graph3DSurface
     private var graphNumLabels = arrayListOf<Graph3DLabel>()
     lateinit var graphGridlines: Graph3DGridlines
+    lateinit var graphPlane: Graph3DPlane
     var initialized = false
     var modelMatrix = FloatArray(16)
     var innerScale = 1f
@@ -49,7 +50,7 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
                     false,
                     textureIDs[textureIndex],
                     "a",
-                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 50f
+                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 25f
                 )
             )
             textureIndex++
@@ -68,7 +69,7 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
                     false,
                     textureIDs[textureIndex],
                     "a",
-                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 50f
+                    scale = (graphViewModel.minorSpace.x * power10).toFloat() * 25f
                 )
             )
             textureIndex++
@@ -85,7 +86,7 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
 
         graph = Graph3D(graphViewModel, backgroundColorPoint, darkTheme)
 
-        graphSurface = Graph3DSurface(graphViewModel, backgroundColorPoint, darkTheme)
+        graphSurface = Graph3DSurface(graphViewModel, backgroundColorPoint, darkTheme, quality = quality.toFloat(), otherScale = innerScale)
 
         GLES20.glGenTextures(1000, textureIDs, 0)
 
@@ -97,6 +98,8 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
 
         graphGridlines = Graph3DGridlines(graphViewModel, backgroundColorPoint, darkTheme)
 
+        graphPlane = Graph3DPlane(graphViewModel, backgroundColorPoint, darkTheme)
+
         initialized = true
     }
 
@@ -107,6 +110,7 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
         val ratio = width.toFloat() / height
         Matrix.frustumM(graph.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
         Matrix.frustumM(graphSurface.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
+        Matrix.frustumM(graphPlane.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
 
         for (graphLabel in graphLabels) {
             Matrix.frustumM(graphLabel.projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 10f)
@@ -139,17 +143,23 @@ class Graph3DRenderer(background: Paint, val graphViewModel: Graph3ViewModel, va
 
         graphGridlines.draw(scaledModelMatrix)
 
-        graphSurface.draw(scaledModelMatrix)
-
-        for (graphLabel in graphLabels) {
-            graphLabel.draw(modelMatrix, innerScale)
+        val otherScaledModelMatrix = modelMatrix.copyOf().also {
+            Matrix.scaleM(it, 0, graphSurface.scale * 0.1f, graphSurface.scale * 0.1f, graphSurface.scale * 0.1f)
         }
+
+        graphSurface.draw(otherScaledModelMatrix)
 
         if (!generatingLabels) {
             for (graphLabel in graphNumLabels) {
                 graphLabel.initialize()
                 graphLabel.draw(scaledModelMatrix, innerScale)
             }
+        }
+
+        graphPlane.draw(modelMatrix)
+
+        for (graphLabel in graphLabels) {
+            graphLabel.draw(modelMatrix, innerScale)
         }
     }
 }

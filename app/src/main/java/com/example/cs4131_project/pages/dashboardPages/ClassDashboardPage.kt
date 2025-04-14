@@ -67,6 +67,7 @@ fun ClassDashboardPage(navController: NavController, handler: FirestoreHandler, 
                         } else {
                             if (item.second.iz3d) {
                                 graph3ViewModel.equation.value = item.second.graph3Item?.equation!!
+                                graph3ViewModel.quality = item.second.graph3Item?.quality!!
                                 navController.navigate("graph3Page/$mode/${item.first}")
                             }
                             else {

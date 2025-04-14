@@ -19,18 +19,19 @@ import com.example.cs4131_project.model.utility.Point2D
 import com.example.cs4131_project.model.utility.Point4D
 import kotlin.math.abs
 
-class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel: Graph3ViewModel, darkTheme: Boolean, var zoomScene: Boolean, var centering: Boolean = true) : GLSurfaceView(context) {
+class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel: Graph3ViewModel, darkTheme: Boolean, var zoomScene: Boolean, var centering: Boolean = true, var quality: Int = 1) : GLSurfaceView(context) {
     private val renderer: Graph3DRenderer
     private val drawer = Drawer(Canvas())
     private var modelMatrix = FloatArray(16)
     private var correctionFactor = Point2D(1.0, -1.0)
     private val lineColorPoint = if (darkTheme) Point(1.0, 1.0, 1.0) else Point(0.0, 0.0, 0.0)
     var updated = false
+    private var immutableScale = 1f
 
     init {
         setEGLContextClientVersion(2)
 
-        renderer = Graph3DRenderer(background, graphViewModel, darkTheme)
+        renderer = Graph3DRenderer(background, graphViewModel, darkTheme, quality)
 
         setRenderer(renderer)
 
@@ -38,6 +39,14 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
     }
 
     private val handler = Handler(Looper.getMainLooper())
+
+    fun setQualityValue(quality: Int) {
+        if (renderer.initialized && renderer.graphSurface.quality.toInt() != quality) {
+            Log.e("rege", "🐥")
+            renderer.graphSurface.quality = quality.toFloat()
+            renderer.graphSurface.generateSurfaceMesh(renderer.innerScale)
+        }
+    }
 
     private val updateRunnable = object : Runnable {
         override fun run() {
@@ -49,12 +58,14 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                 elevation *= 0.7f
                 scale += (1f - scale) * 0.3f
                 renderer.innerScale += (1f - renderer.innerScale) * 0.3f
+                immutableScale += (1f - immutableScale) * 0.3f
                 if (renderer.initialized) {
                     renderer.graphGridlines.scale = renderer.innerScale
-                    renderer.graphSurface.scale = renderer.innerScale
+                    renderer.graphSurface.scale = immutableScale
                 }
-                if (graphViewModel.power10 == -1 && graphViewModel.size.equals(Point(10.5, 10.5, 10.5)) && abs(renderer.innerScale - 1f) < 0.01f && abs(azimuth) < 0.01f && abs(elevation) < 0.01f && abs(scale - 1f) < 0.01f) {
+                if (graphViewModel.power10 == -1 && graphViewModel.size.equals(Point(10.5, 10.5, 10.5)) && abs(renderer.innerScale - 1f) < 0.01f && abs(azimuth) < 0.01f && abs(elevation) < 0.01f && abs(scale - 1f) < 0.01f && abs(immutableScale - 1f) < 0.01f) {
                     centering = false
+                    updated = true
                 }
             }
 
@@ -67,7 +78,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale /= 4f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                     2 -> {
@@ -76,7 +86,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale /= 2.5f * 2.5f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                     5 -> {
@@ -86,7 +95,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale /= 4f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                 }
@@ -102,7 +110,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale *= 4f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                     2 -> {
@@ -110,7 +117,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale *= 4f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                     5 -> {
@@ -119,7 +125,6 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                         renderer.innerScale *= 2.5f * 2.5f
                         if (renderer.initialized) {
                             renderer.graphGridlines.scale = renderer.innerScale
-                            renderer.graphSurface.scale = renderer.innerScale
                         }
                     }
                 }
@@ -127,15 +132,15 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
             }
 
             if (updated && renderer.initialized) {
-                renderer.generateLabels()
+                //renderer.generateLabels()
                 renderer.graphGridlines.generateGrid()
-                renderer.graphSurface.generateSurfaceMesh()
+                renderer.graphSurface.generateSurfaceMesh(renderer.innerScale)
                 updated = false
             }
 
             if (renderer.initialized) {
                 renderer.graphGridlines.scale = renderer.innerScale
-                renderer.graphSurface.scale = renderer.innerScale
+                renderer.graphSurface.scale = immutableScale
             }
 
             modelMatrix.also {
@@ -179,9 +184,13 @@ class GraphGLSurfaceView(context: Context, background: Paint, val graphViewModel
                     scale *= detector.scaleFactor
                     scale = scale.coerceIn(0.01f, 100.0f)
                 }
-                else {
+                else if ((renderer.innerScale in 0.1f..10f) ||
+                    (renderer.innerScale < 0.1f && detector.scaleFactor <= 1f) ||
+                    (renderer.innerScale > 10f && detector.scaleFactor >= 1f)) {
+                    Log.e("rege", "🍷")
                     renderer.innerScale *= detector.scaleFactor
                     renderer.graphGridlines.scale = renderer.innerScale
+                    immutableScale *= detector.scaleFactor
                     graphViewModel.size *= detector.scaleFactor.toDouble()
                 }
 

@@ -69,10 +69,10 @@ import java.io.OutputStream
 fun EquationEditor3Page(navController: NavController, mode: String, graphViewModel: Graph3ViewModel, handler: FirestoreHandler, name: String) {
     val inputExpressionState = remember { mutableStateOf(graphViewModel.equation.value.equationString) }
     val context = LocalContext.current
-    var newName by remember { mutableStateOf(name) }
     val expandedState = remember{mutableStateOf(false)}
 
-    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler, originalName = newName,
+    ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler, originalName = name,
+        backRoute = "graph3Page/$mode/$name",
         floatingActionButton = {
             ExpandableFAB(
                 ArrayList(buildList {
@@ -111,7 +111,7 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
 
                         val key =
                             if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                        handler.unsavedData[key]?.savedData?.get(newName)?.graph3Item?.equation?.equationString =
+                        handler.unsavedData[key]?.savedData?.get(name)?.graph3Item?.equation?.equationString =
                             inputExpressionState.value
                     },
                     label = { Text("Enter LaTeX Equation") },
@@ -136,6 +136,21 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
                         it.setDisplayText("\$f(x,y)=${inputExpressionState.value}\$")
                     }
                 )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = {
+                            navController.navigate("graph3Page/$mode/$name")
+                        }
+                    ) {
+                        Text(getString(context, R.string.equationEditor3Page1))
+                    }
+                }
             }
         }
     }
