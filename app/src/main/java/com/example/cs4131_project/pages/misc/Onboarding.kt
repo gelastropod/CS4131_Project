@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Onboarding(navController: NavController, userPreferences: SharedPreferences) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val pagerState = rememberPagerState(pageCount = { 2 })
     val scrollScope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -53,7 +53,7 @@ fun Onboarding(navController: NavController, userPreferences: SharedPreferences)
                 when (page) {
                     0 -> Onboarding1(context)
                     1 -> Onboarding2(context)
-                    2 -> Onboarding3(context)
+                    //2 -> Onboarding3(context)
                 }
             }
             Row(
