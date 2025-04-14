@@ -36,7 +36,7 @@ import com.example.cs4131_project.components.wrappers.NoToolbarWrapper
 @Composable
 fun HomePage(navController: NavController) {
     val context = LocalContext.current
-    val carouselMultiBrowseState = rememberCarouselState {3}
+    val carouselMultiBrowseState = rememberCarouselState {4}
 
     NoToolbarWrapper(navController, getString(context, R.string.homePageTitle)) {
         Box(
@@ -50,7 +50,7 @@ fun HomePage(navController: NavController) {
             ) {
                 HorizontalMultiBrowseCarousel(
                     state = carouselMultiBrowseState,
-                    preferredItemWidth = 250.dp,
+                    preferredItemWidth = 320.dp,
                     itemSpacing = 19.dp
                 ) { index ->
                     when (index) {
@@ -85,6 +85,17 @@ fun HomePage(navController: NavController) {
                                     contentDescription = "Epic Graph 2"
                                 )
                                 Text(getString(context, R.string.homePage8), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
+                        }
+                        3 -> {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.graph3d),
+                                    contentDescription = "3D Graph"
+                                )
+                                Text(getString(context, R.string.homePage9), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                             }
                         }
                     }

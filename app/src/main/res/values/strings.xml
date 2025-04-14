@@ -196,4 +196,5 @@
     <string name="mainActivity2">Notification permission not granted!</string>
     <string name="settingsPage8">Reset Data</string>
     <string name="settingsPage9">User data has been reset!</string>
+    <string name="homePage9">Sample 3D Graph</string>
 </resources>

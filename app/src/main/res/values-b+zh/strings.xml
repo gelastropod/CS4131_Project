@@ -1,0 +1,200 @@
+<resources>
+    <string name="app_name">Graphium</string>
+    <string name="onboarding1_1">欢迎使用\nGraphium！</string>
+    <string name="onboarding1_2">您的一站式数学工作空间</string>
+    <string name="onboarding1_3">创建 · 绘图 · 学习</string>
+    <string name="onboarding2_1">主要功能</string>
+    <string name="onboarding2_2_1">创建笔记</string>
+    <string name="onboarding2_2_2">：用公式、方程和图表编写结构化数学笔记。\n</string>
+    <string name="onboarding2_2_3">2D 和 3D 绘图</string>
+    <string name="onboarding2_2_4">：使用交互式绘图工具动态可视化方程。</string>
+    <string name="onboarding2_2_5">加入班级</string>
+    <string name="onboarding2_2_6">：与教师联系，访问共享资料并与同学协作。</string>
+    <string name="homePageTitle">欢迎使用 Graphium！</string>
+    <string name="homePage1">个人</string>
+    <string name="homePage2">学生</string>
+    <string name="homePage3">教师</string>
+    <string name="signInPageTitle">登录</string>
+    <string name="signInPage1">用户名...</string>
+    <string name="signInPage2">密码...</string>
+    <string name="signInPage3">登录</string>
+    <string name="signInPage4_1">新用户？\ </string>
+    <string name="signInPage4_2">创建账户</string>
+    <string name="signUpPageTitle">创建账户</string>
+    <string name="signUpPage1">用户名...</string>
+    <string name="signUpPage2">密码...</string>
+    <string name="signUpPage3">创建账户</string>
+    <string name="signUpPage4_1">已有账户？\ </string>
+    <string name="signUpPage4_2">登录</string>
+    <string name="studentPromptPageTitle">加入班级</string>
+    <string name="studentPromptPage1">您想加入班级吗？</string>
+    <string name="studentPromptPage2">班级 ID...</string>
+    <string name="studentPromptPage3">加入班级</string>
+    <string name="studentPromptPage4">稍后</string>
+    <string name="teacherPromptPageTitle">创建班级</string>
+    <string name="teacherPromptPage1">您想创建班级吗？</string>
+    <string name="teacherPromptPage2">班级名称...</string>
+    <string name="teacherPromptPage3">创建班级</string>
+    <string name="teacherPromptPage4">稍后</string>
+    <string name="personalDashboardPageTitle">欢迎\ </string>
+    <string name="studentDashboardPageTitle">欢迎\ </string>
+    <string name="teacherDashboardPageTitle">欢迎\ </string>
+    <string name="classDashboardPageTitle">班级\ </string>
+    <string name="studentClassListPageTitle">您的班级</string>
+    <string name="studentClassListPage1">加入班级</string>
+    <string name="teacherClassListPageTitle">您的班级</string>
+    <string name="teacherClassListPage1">创建班级</string>
+    <string name="classDetailsPageTitle">[班级名称]</string>
+    <string name="joinClassPageTitle">加入班级</string>
+    <string name="joinClassPage1">输入班级 ID</string>
+    <string name="joinClassPage2">班级 ID...</string>
+    <string name="joinClassPage3">加入班级</string>
+    <string name="createClassPageTitle">创建班级</string>
+    <string name="createClassPage1">输入班级名称</string>
+    <string name="createClassPage2">班级名称...</string>
+    <string name="createClassPage3">创建班级</string>
+    <string name="settingsPageTitle">设置</string>
+    <string name="createNewPageTitle">新建</string>
+    <string name="createNewPage1">新建图表</string>
+    <string name="createNewPage2">新建笔记</string>
+    <string name="createNewPage3">新建\ </string>
+    <string name="createNewPage4">输入名称：</string>
+    <string name="createNewPage5">名称...</string>
+    <string name="createNewPage6">确认</string>
+    <string name="createNewPage7">取消</string>
+    <string name="dashboardWrapper1">确认登出</string>
+    <string name="dashboardWrapper2">确定要登出吗？</string>
+    <string name="dashboardWrapper3">确认</string>
+    <string name="dashboardWrapper4">取消</string>
+    <string name="notesPageTitle">笔记</string>
+    <string name="contentWrapper1">返回仪表盘</string>
+    <string name="contentWrapper2">保存</string>
+    <string name="contentWrapper3">重命名</string>
+    <string name="contentWrapper4">重命名</string>
+    <string name="contentWrapper5">输入名称</string>
+    <string name="contentWrapper6">名称...</string>
+    <string name="contentWrapper7">确认</string>
+    <string name="contentWrapper8">取消</string>
+    <string name="contentWrapper9">编辑</string>
+    <string name="contentWrapper10">删除</string>
+    <string name="graphPageTitle">图表</string>
+    <string name="graphMenuItem1">重置图表中心</string>
+    <string name="equationPageTitle">方程</string>
+    <string name="equationPage1">输入表达式...</string>
+    <string name="equationEditorPageTitle">编辑方程</string>
+    <string name="equationPage2">创建新方程</string>
+    <string name="dashboardWrapper5">退出确认</string>
+    <string name="dashboardWrapper6">确定要退出吗？未保存的更改将丢失。</string>
+    <string name="createNewPage8">返回</string>
+    <string name="contentWrapper11">保存成功！</string>
+    <string name="contentWrapper12">重命名成功！</string>
+    <string name="signInPage5">用户名不存在！</string>
+    <string name="signInPage6">用户名或密码错误！</string>
+    <string name="signUpPage5">用户名已存在！</string>
+    <string name="signUpPage6">密码与确认密码不一致！</string>
+    <string name="signUpPage7">确认密码...</string>
+    <string name="settingsPage1">切换亮/暗模式</string>
+    <string name="settingsPage2">重置数据（不可逆！）</string>
+    <string name="dashboardWrapper7">Graphium</string>
+    <string name="dashboardWrapper8">仪表盘</string>
+    <string name="dashboardWrapper9">设置</string>
+    <string name="dashboardWrapper10">班级</string>
+    <string name="dashboardWrapper11">登出</string>
+    <string name="dashboardWrapper12">导入...</string>
+    <string name="dashboardWrapper13">导出...</string>
+    <string name="dashboardWrapper14">加载文件错误</string>
+    <string name="contentWrapper13">导出...</string>
+    <string name="contentWrapper14">删除</string>
+    <string name="contentWrapper15">删除项目</string>
+    <string name="contentWrapper16">确定要删除此项目吗？此操作不可撤销！</string>
+    <string name="settingsPage3">重置用户数据</string>
+    <string name="settingsPage4">确定要重置所有用户数据吗？此操作不可逆！</string>
+    <string name="homePage4">登录</string>
+    <string name="homePage5">注册</string>
+    <string name="modeChoosePageTitle">您使用此应用的目的是？</string>
+    <string name="settingsPage5">启用彩花效果</string>
+    <string name="createNewPage9">名称已存在！</string>
+    <string name="joinClassPage4">班级不存在！</string>
+    <string name="signUpPage8">密码至少需要8个字符！</string>
+    <string name="signUpPage9">密码必须包含至少一个大写字母、小写字母和数字！</string>
+    <string name="signUpPage10"><![CDATA[密码必须包含至少1个特殊字符！(!@#\\$%^&*)]]></string>
+    <string name="signUpPage11">密码不能包含空格！</string>
+    <string name="signUpPage12">无效密码！</string>
+    <string name="informationPageTitle">关于此应用</string>
+    <string name="dashboardWrapper15">关于此应用</string>
+    <string name="informationPage1">
+        # Graphium\ \ \n
+        \ \ \n
+        您的一站式数学伴侣——在一个强大的应用中记笔记、绘制图表并与班级连接。\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        ## 关于此应用\ \ \n
+        \ \ \n
+        **Graphium** 是一款现代教育应用，旨在让学生和教师更互动、高效地学习和教授数学。无论是绘制2D曲线还是建模3D函数，Graphium 都能让绘图变得直观而美观。\ \ \n
+        \ \ \n
+        通过无缝的笔记界面、集成的绘图工具和班级共享功能，Graphium 使用户能够以更视觉化和有条理的方式探索数学概念。\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        ## 功能\ \ \n
+        \ \ \n
+        ### 创建和组织笔记\ \ \n
+        - 编写、编辑和格式化数学笔记\ \ \n
+        - 添加方程、解释和图表参考\ \ \n
+        - 通过文件夹或标签组织笔记以便快速访问\ \ \n
+        \ \ \n
+        ### 交互式绘图工具\ \ \n
+        - 轻松绘制**2D图表**（线条、曲线、不等式等）\ \ \n
+        - 通过旋转和缩放深入探索**3D图表**\ \ \n
+        - 自定义图表外观：颜色、比例、标签\ \ \n
+        \ \ \n
+        ### 编辑和保存图表\ \ \n
+        - 随时修改现有图表\ \ \n
+        - 将图表直接附加到笔记中\ \ \n
+        - 保存并重复使用图表模板\ \ \n
+        \ \ \n
+        ### 教师账户和教室\ \ \n
+        - 创建**教师账户**以管理班级\ \ \n
+        - 与学生共享笔记和图表\ \ \n
+        - 材料对学生为**只读**以确保一致性\ \ \n
+        - 非常适合家庭作业帮助、考试准备或课堂活动\ \ \n
+        \ \ \n
+        ### 学生模式\ \ \n
+        - 使用代码加入班级\ \ \n
+        - 随时查看共享内容\ \ \n
+        - 将个人笔记和图表与班级资料分开保存\ \ \n
+        \ \ \n
+        ---\ \ \n
+        \ \ \n
+        Graphium 非常适合高中和大学生、家教以及希望为数学教育带来清晰度和互动性的教育工作者。\ \ \n
+        \ \ \n
+        ## 致谢\ \ \n
+        Graphium 由 gelastropod 作为其 CS4131 安卓应用开发项目创建。\ \ \n
+    </string>
+    <string name="informationPage2">
+        \ \ \n
+        \ \ \n
+        uwu :3
+    </string>
+    <string name="settingsPage6">启用向右滑动打开侧边栏</string>
+    <string name="createClassPage4">名称已存在！</string>
+    <string name="notesPage1">更改笔记视图</string>
+    <string name="settingsPage7">切换动态主题</string>
+    <string name="createNewPage10">2D 图表</string>
+    <string name="createNewPage11">3D 图表</string>
+    <string name="homePage6">示例笔记</string>
+    <string name="homePage7">示例 2D 图表 1</string>
+    <string name="homePage8">示例 2D 图表 2</string>
+    <string name="contentWrapper17">同名现有项目将被覆盖！</string>
+    <string name="equationEditor3Page1">完成</string>
+    <string name="signInPage7">登录</string>
+    <string name="signInPage8">登录成功！</string>
+    <string name="signUpPage13">注册</string>
+    <string name="signUpPage14">注册成功！</string>
+    <string name="mainActivity1">通知权限已授予！</string>
+    <string name="mainActivity2">通知权限未授予！</string>
+    <string name="settingsPage8">重置数据</string>
+    <string name="settingsPage9">用户数据已重置！</string>
+    <string name="homePage9">示例 3D 图表</string>
+</resources>
