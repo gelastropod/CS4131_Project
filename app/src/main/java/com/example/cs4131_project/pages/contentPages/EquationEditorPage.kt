@@ -45,6 +45,7 @@ import katex.hourglass.`in`.mathlib.MathView
 @Composable
 fun EquationEditorPage(navController: NavController, mode: String, index: Int, graphViewModel: GraphViewModel, handler: FirestoreHandler, name: String) {
     val inputExpressionState = remember { mutableStateOf(graphViewModel.equations[index].equationString) }
+    val colour = graphViewModel.equations[index].color
     val context = LocalContext.current
 
     ContentWrapper(navController, getString(context, R.string.equationEditorPageTitle), mode = mode, handler = handler, originalName = name, backRoute = "equationPage/$mode/$name") {
@@ -92,10 +93,11 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
                     onClick = {
                         handler.unsaved = true
 
-                        graphViewModel.setEquation(index, inputExpressionState.value, Point(1.0, 0.5, 0.5))
+                        graphViewModel.setEquation(index, inputExpressionState.value, colour)
 
                         val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
                         handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
+
 
                         navController.navigate("equationPage/$mode/$name")
                     }

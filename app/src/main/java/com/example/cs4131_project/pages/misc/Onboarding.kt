@@ -86,7 +86,7 @@ fun Onboarding(navController: NavController, userPreferences: SharedPreferences)
                     }
                 }
                 Spacer(modifier = Modifier.width(20.dp))
-                if (page != 2) {
+                if (page != 1) {
                     Button(
                         onClick = {
                             scrollScope.launch {
