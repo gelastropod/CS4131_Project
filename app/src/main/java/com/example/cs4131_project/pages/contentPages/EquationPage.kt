@@ -126,7 +126,9 @@ fun ColorPickerDialog(
 ) {
     val colorOptions = arrayListOf(
         Point(1.0, 0.5, 0.5),
-        Point(0.5, 0.5, 1.0)
+        Point(0.5, 0.5, 1.0),
+        Point(0.5, 1.0, 0.5),
+        Point(0.0, 0.0, 0.0)
     )
 
     AlertDialog(

@@ -220,27 +220,29 @@ fun DashboardWrapper(
                         shape = RectangleShape
                     )
                 }
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.import_icon),
-                            contentDescription = "dashboard"
-                        )
-                    },
-                    label = { Text(getString(context, R.string.dashboardWrapper12)) },
-                    selected = false,
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            type = "text/plain"
-                        }
-                        importFilePickerLauncher.launch(intent)
+                if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                    NavigationDrawerItem(
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.import_icon),
+                                contentDescription = "dashboard"
+                            )
+                        },
+                        label = { Text(getString(context, R.string.dashboardWrapper12)) },
+                        selected = false,
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                                type = "text/plain"
+                            }
+                            importFilePickerLauncher.launch(intent)
 
-                        scope.launch {
-                            drawerState.close()
-                        }
-                    },
-                    shape = RectangleShape
-                )
+                            scope.launch {
+                                drawerState.close()
+                            }
+                        },
+                        shape = RectangleShape
+                    )
+                }
                 NavigationDrawerItem(
                     icon = {
                         Icon(

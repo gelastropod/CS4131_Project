@@ -47,7 +47,7 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
     val context = LocalContext.current
     var text by remember { mutableStateOf(notesContent) }
     val keyboardController = LocalSoftwareKeyboardController.current
-    var isReading by remember { mutableStateOf(false)}
+    var isReading by remember { mutableStateOf(mode != "student" || GlobalDatastore.currentClass.value.isEmpty())}
     val expandedState = remember{mutableStateOf(false)}
 
     ContentWrapper(
@@ -71,7 +71,10 @@ fun NotesPage(navController: NavController, mode: String, notesContent: String, 
                     )
                 }),
                 expandedState
-            ) { expandedState.value = it }
+            ) { if (mode != "student" || GlobalDatastore.currentClass.value.isEmpty()) {
+                    expandedState.value = it
+                }
+            }
         }
     ) {
         Box(modifier = Modifier
