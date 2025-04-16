@@ -114,7 +114,7 @@ fun EquationEditor3Page(navController: NavController, mode: String, graphViewMod
                         handler.unsavedData[key]?.savedData?.get(name)?.graph3Item?.equation?.equationString =
                             inputExpressionState.value
                     },
-                    readOnly = mode != "student" || GlobalDatastore.currentClass.value.isEmpty(),
+                    readOnly = !(mode != "student" || GlobalDatastore.currentClass.value.isEmpty()),
                     label = { Text("Enter LaTeX Equation") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
