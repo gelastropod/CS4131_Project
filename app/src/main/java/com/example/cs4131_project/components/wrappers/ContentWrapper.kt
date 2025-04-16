@@ -85,7 +85,8 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
             val uri: Uri? = result.data?.data
             uri?.let {
                 val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                val savedItem = handler.data[key]?.savedData?.get(originalName)!!
+
+                val savedItem = handler.data[key]?.savedData?.get(name)!!
 
                 val dataToWrite = gson.toJson(savedItem)
 
@@ -154,7 +155,7 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                                 addCategory(Intent.CATEGORY_OPENABLE)
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TITLE, originalName)
+                                putExtra(Intent.EXTRA_TITLE, name)
                             }
                             exportFilePickerLauncher.launch(intent)
                         }
@@ -252,7 +253,7 @@ fun ContentWrapper(navController: NavController, title: String, selectedState: I
                                 showDeleteDialog = false
 
                                 val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
-                                handler.data[key]?.savedData?.remove(originalName)
+                                handler.data[key]?.savedData?.remove(name)
                                 handler.updateDatabase()
 
                                 if (GlobalDatastore.currentClass.value.isNotEmpty())

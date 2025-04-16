@@ -73,6 +73,7 @@ import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.Equation
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
+import com.google.gson.Gson
 import katex.hourglass.`in`.mathlib.MathView
 import kotlin.math.exp
 
@@ -109,6 +110,7 @@ fun ColorPickerDialogDemo(graphViewModel: GraphViewModel, index: Int, handler: F
                     selectedColor = color
 
                     handler.unsaved = true
+                    handler.unsavedData[GlobalDatastore.username.value]?.savedData?.get(GlobalDatastore.currentClass.value)?.graphItem?.equations = graphViewModel.equations
 
                     showDialog = false
                 },
@@ -201,9 +203,8 @@ fun EquationPage(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(
-                    items = graphViewModel.equations
-                ) { equation ->
-                    val index = graphViewModel.equations.indexOf(equation)
+                    graphViewModel.equations.size
+                ) { index ->
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.CenterEnd

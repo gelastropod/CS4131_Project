@@ -40,6 +40,7 @@ import com.example.cs4131_project.model.firestoreModels.FirestoreHandler
 import com.example.cs4131_project.model.firestoreModels.GlobalDatastore
 import com.example.cs4131_project.model.graph.GraphViewModel
 import com.example.cs4131_project.model.utility.Point
+import com.google.gson.Gson
 import katex.hourglass.`in`.mathlib.MathView
 
 @Composable
@@ -97,7 +98,6 @@ fun EquationEditorPage(navController: NavController, mode: String, index: Int, g
 
                         val key = if (GlobalDatastore.currentClass.value.isEmpty()) GlobalDatastore.username.value else GlobalDatastore.currentClass.value
                         handler.unsavedData[key]?.savedData?.get(name)?.graphItem?.equations = graphViewModel.equations
-
 
                         navController.navigate("equationPage/$mode/$name")
                     }
